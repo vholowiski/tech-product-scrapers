@@ -7,7 +7,6 @@
 
 import scrapy
 
-
 class TigerdirectItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
@@ -17,4 +16,3 @@ class TigerdirectItem(scrapy.Item):
     listPrice = scrapy.Field()
     itemNo = scrapy.Field()
     modelNo = scrapy.Field()
-    pass
