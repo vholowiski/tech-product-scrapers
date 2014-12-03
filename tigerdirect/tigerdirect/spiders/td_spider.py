@@ -15,4 +15,6 @@ class TigerDirectSpider(scrapy.Spider):
 			f.write(response.body)
 
 
-			#response.xpath('//div[@class="product"]')
+			#products = response.xpath('//div[@class="product"]')
+			#products.xpath('//p[@class="itemModel"]').extract()
+			
