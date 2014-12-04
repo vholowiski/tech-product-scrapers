@@ -24,8 +24,22 @@ class TigerDirectSpider(CrawlSpider):
 		#filename = response.url.split("/")[-2]
 		#with open(filename, 'wb') as f:
 		item = TigerdirectItem()
+		#item ['_prodName'] = response.xpath('//div[@class="prodName"]').extract().strip()
+
 		item['productName'] = response.xpath('//div[@class="prodName"]/h1/text()').extract()
+		
+		strItemNumber = response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[0].extract()
+		strItemNumber = strItemNumber.strip().replace("\n","").replace("|","").replace("\r","").replace("\u00a0","").strip()
+		item['itemNo'] = strItemNumber
+
+		strModelNumber = response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[1].extract()
+		strModelNumber = strModelNumber.strip().replace("\n","").replace("|","").replace("\r","").replace("\u00a0","").strip()
+		item['modelNo'] = strModelNumber
+
+		#item.modelNo = response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[1].extract().strip()
+
 		item['detailsLink'] = response.url
+
 		return item
 		#f.write(response.body)
 

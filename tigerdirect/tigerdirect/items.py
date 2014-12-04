@@ -16,3 +16,4 @@ class TigerdirectItem(scrapy.Item):
     listPrice = scrapy.Field()
     itemNo = scrapy.Field()
     modelNo = scrapy.Field()
+    _prodName = scrapy.Field()
