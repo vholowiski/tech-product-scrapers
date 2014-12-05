@@ -16,7 +16,7 @@ class TigerdirectItem(scrapy.Item):
     listPrice = scrapy.Field()
     itemNo = scrapy.Field()
     modelNo = scrapy.Field()
-    
+    crawlTimestamp = scrapy.Field()
     #some fields specific to tiger direct: (all the _td's)
     _prodName = scrapy.Field()
 

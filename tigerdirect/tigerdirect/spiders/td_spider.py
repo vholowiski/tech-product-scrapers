@@ -1,4 +1,5 @@
 import scrapy
+import time
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
 from tigerdirect.items import TigerdirectItem
@@ -24,10 +25,12 @@ class TigerDirectSpider(CrawlSpider):
 		#filename = response.url.split("/")[-2]
 		#with open(filename, 'wb') as f:
 		item = TigerdirectItem()
+
+		item['crawlTimestamp'] = time.time()
 		#item ['_prodName'] = response.xpath('//div[@class="prodName"]').extract().strip()
 
 		item['productName'] = response.xpath('//div[@class="prodName"]/h1/text()').extract()
-		
+
 		strItemNumber = response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[0].extract()
 		strItemNumber = strItemNumber.strip().replace("\n","").replace("|","").replace("\r","").replace("\u00a0","").strip()
 		item['itemNo'] = strItemNumber
@@ -45,38 +48,45 @@ class TigerDirectSpider(CrawlSpider):
 		#i need the dd of the dt class priceSale
 
 		#pricebox.xpath('//dt[contains(@class,"priceSale")]').extract()
-			#this gets me the dt right before the dd that I need
-			#pricebox.xpath('//dd/following::dt') #gets the dd after a dt
-			#this is the exact oposite of what I want: pricebox.xpath('//dd/preceding::dt[@class="priceSale priceToday"]').extract()
-			#pricebox.xpath('"//dt[@class="priceSale priceToday"]::following/dd')
-			#i think this one is right: pricebox.xpath('//dt/following::dd[@class="salePrice priceToday"]').extract()
-			#salePriceNode = pricebox.xpath('//dt/following::dd[@class="salePrice priceToday"]')
-			#node0 = salePriceNode[0]
+		#this gets me the dt right before the dd that I need
+		#pricebox.xpath('//dd/following::dt') #gets the dd after a dt
+		#this is the exact oposite of what I want: pricebox.xpath('//dd/preceding::dt[@class="priceSale priceToday"]').extract()
+		#pricebox.xpath('"//dt[@class="priceSale priceToday"]::following/dd')
+		#i think this one is right: pricebox.xpath('//dt/following::dd[@class="salePrice priceToday"]').extract()
+		#salePriceNode = pricebox.xpath('//dt/following::dd[@class="salePrice priceToday"]')
+		#node0 = salePriceNode[0]
 		#price: ''.join(response.xpath('//dd[contains(@class, "salePrice")]/descendant::*/text()').extract())
 		salePrice = ''.join(response.xpath('//dd[contains(@class, "salePrice")]/descendant::*/text()').extract())
 		salePrice = salePrice.strip().replace(" ","").replace("$","")
-		_td_salePrice = salePrice
+		item['_td_salePrice'] = salePrice
 
-		priceRebate = (response.xpath('//dd[contains(@class, "priceRebate")]/text()').extract())[0]
-		priceRebate = priceRebate.strip().replace("\n","").replace("\r","").replace(" ","").replace("$","")
-    	_td_priceRebate = priceRebate
+		priceRebateArray = response.xpath('//dd[contains(@class, "priceRebate")]/text()').extract()
+		if priceRebateArray:
+			priceRebate = priceRebateArray[0]
+			priceRebate = priceRebate.strip().replace("\n","").replace("\r","").replace(" ","").replace("$","")
+			item['_td_priceRebate'] = priceRebate
 
-    	#ugh. Messy. Dunno if this will work...
-    	priceFinalDollar = response.xpath('//dd[contains(@class, "priceFinal")]/span/text()')[0].extract()
-    	priceFinalDecimal = response.xpath('//dd[contains(@class, "priceFinal")]/span/descendant::*/text()').extract()
-    	priceFinalDecimal = ''.join(priceDecimal).strip().replace("\n","").replace("\r","").replace(" ","").replace("$","").replace("*","")
-    	priceFinal = ''.join((priceFinalDollar,priceFinalDecimal))
-    	_td_priceFinal = priceFinal
+		#ugh. Messy. Dunno if this will work...
+		isThereaFinalPrice = response.xpath('//dd[contains(@class, "priceFinal")]')
+		if isThereaFinalPrice:
+			dollar = ""
+			decimal = ""
+			price = ""
+			priceFinalDollarArray = response.xpath('//dd[contains(@class, "priceFinal")]/span/text()')
+			if priceFinalDollarArray:
+				dollar = priceFinalDollarArray[0].extract()
+			
+			priceFinalDecimal = response.xpath('//dd[contains(@class, "priceFinal")]/span/descendant::*/text()').extract()
+			if priceFinalDecimal:
+				decimal = ''.join(priceFinalDecimal).strip().replace("\n","").replace("\r","").replace(" ","").replace("$","").replace("*","")
+			
+			price = ''.join((dollar,decimal))
+			item['_td_priceFinal'] = price
 		
 		item['detailsLink'] = response.url
-
 		return item
 		#f.write(response.body)
-
-
 		#products = response.xpath('//div[@class="product"]')
 		#products.xpath('//p[@class="itemModel"]/text()').extract()
 		#products.xpath('//h3[@class="itemName"]/a')
 		#products.xpath('//h3[@class="itemName"]/a/text()')
-
-
