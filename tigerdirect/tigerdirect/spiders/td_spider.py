@@ -13,12 +13,16 @@ class TigerDirectSpider(CrawlSpider):
 	#"http://www.tigerdirect.ca/applications/category/category_slc.asp?page=4&Nav=|c:6957|&Sort=4&Recs=30"
 	#]
 	#start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9516609&CatId=6957"]
-	start_urls = ["http://www.tigerdirect.ca/applications/category/category_slc.asp?CatId=6845"]
+	start_urls = ["http://www.tigerdirect.ca/sectors/category/site-directory.asp",
+	"http://www.tigerdirect.ca/applications/Refurb/refurb_tlc.asp",
+	"http://www.tigerdirect.ca/applications/openbox/openbox_tlc.asp",
+	"http://www.tigerdirect.ca/applications/campaigns/deals.asp?campaignid=2835"]
 	#one page, for rules: http://www.tigerdirect.ca/applications/category/category_slc.asp?CatId=6845
 	#and item details: http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9561721&CatId=6845
 	rules = (
-		Rule(LinkExtractor(allow=('category_slc\.asp\?CatId', ))),
-		Rule(LinkExtractor(allow=('item-details\.asp\?EdpNo=', )), callback='parse_items'),
+		Rule(LinkExtractor(allow=('\.asp\?CatId', ))),
+		Rule(LinkExtractor(allow=('category\/super.asp?Id=', ))),
+		Rule(LinkExtractor(allow=('item-details\.asp\?EdpNo=', )), callback='parse_items', follow= True),
 	)
 
 	def parse_items(self, response):
