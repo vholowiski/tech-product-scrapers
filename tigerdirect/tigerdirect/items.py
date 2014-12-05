@@ -16,4 +16,12 @@ class TigerdirectItem(scrapy.Item):
     listPrice = scrapy.Field()
     itemNo = scrapy.Field()
     modelNo = scrapy.Field()
+    
+    #some fields specific to tiger direct: (all the _td's)
     _prodName = scrapy.Field()
+
+    #need a price object... with a timestamp field. maybe timestamp is the index value
+    _td_priceBox = scrapy.Field()
+    _td_salePrice = scrapy.Field()
+    _td_priceRebate = scrapy.Field() #how much is the rebate? Probably a negative value
+    _td_priceFinal = scrapy.Field() #final price - sale minus rebate

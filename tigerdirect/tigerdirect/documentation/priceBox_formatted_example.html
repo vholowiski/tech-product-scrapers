@@ -1,0 +1,58 @@
+<a href="http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9561721&CatId=6845">http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9561721&CatId=6845</a>
+
+Chrome says xpath = //*[@id="ProductReview"]/div[2]/div[2]/dl
+but I get this by: //dl[@class="priceBox"]
+
+In this, there are 3 sub-sections (sort of)
+	priceSale
+	priceRebate
+	priceFinal
+These are flaggedin the <dt>, but the data is in the next element 
+	IE: priceSale is in the <dd> after <dt class="priceSale">
+
+<dl class="priceBox">
+	<dt class="priceSale priceToday">Today\'s Price:</dt>
+	<dd class="salePrice priceToday">
+		<span class="salePrice">
+			<sup>$</sup>91
+			<sup>
+				<span class="priceDecimalMark">.</span>99
+				<span class="priceFlag"></span>
+			/sup>
+		</span>
+	</dd>
+	<dt class="priceRebate">
+		<a href="javascript:void(0);" id="RebateInfoAnchor">Less Rebate:</a>
+	</dt>
+	<dd class="priceRebate">
+		-$60.00
+		<small>
+			<strong>Ends 12/31/2014.</strong>
+			<a href="javascript:void(0);" id="rebateTerms">See Terms.</a>
+			Restrictions Apply.NOTICE: Limit (1) ONE rebate per customer, Credit Card activation required.
+		</small>
+	</dd>
+	<dt class="priceFinal priceFinalSmall">Final Price:</dt>
+	<dd class="priceFinal priceFinalSmall">
+		<span class="salePrice">
+			<sup>$</sup>31
+			<sup>
+				<span class="priceDecimalMark">.</span>99<span class="priceFlag">*</span>
+			</sup>
+		</span>
+		<span>After Rebate</span>
+	</dd>
+</dl>
+
+One single node (salePrice)
+<dd class="salePrice priceToday">
+	<span class="salePrice">
+		<sup>$</sup>
+		91
+		<sup>
+			<span class="priceDecimalMark">.</span>
+			99
+			<span class="priceFlag"></span>
+		</sup>
+	</span>
+</dd>

@@ -37,7 +37,37 @@ class TigerDirectSpider(CrawlSpider):
 		item['modelNo'] = strModelNumber
 
 		#item.modelNo = response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[1].extract().strip()
+		pricebox = response.xpath('//dl[@class="priceBox"]')
+		item['_td_priceBox'] = pricebox.extract() #just saving for later re-parsing
 
+		#this is no good but getting close:
+		#dds = pricebox.xpath('//dt/following::dd')
+		#i need the dd of the dt class priceSale
+
+		#pricebox.xpath('//dt[contains(@class,"priceSale")]').extract()
+			#this gets me the dt right before the dd that I need
+			#pricebox.xpath('//dd/following::dt') #gets the dd after a dt
+			#this is the exact oposite of what I want: pricebox.xpath('//dd/preceding::dt[@class="priceSale priceToday"]').extract()
+			#pricebox.xpath('"//dt[@class="priceSale priceToday"]::following/dd')
+			#i think this one is right: pricebox.xpath('//dt/following::dd[@class="salePrice priceToday"]').extract()
+			#salePriceNode = pricebox.xpath('//dt/following::dd[@class="salePrice priceToday"]')
+			#node0 = salePriceNode[0]
+		#price: ''.join(response.xpath('//dd[contains(@class, "salePrice")]/descendant::*/text()').extract())
+		salePrice = ''.join(response.xpath('//dd[contains(@class, "salePrice")]/descendant::*/text()').extract())
+		salePrice = salePrice.strip().replace(" ","").replace("$","")
+		_td_salePrice = salePrice
+
+		priceRebate = (response.xpath('//dd[contains(@class, "priceRebate")]/text()').extract())[0]
+		priceRebate = priceRebate.strip().replace("\n","").replace("\r","").replace(" ","").replace("$","")
+    	_td_priceRebate = priceRebate
+
+    	#ugh. Messy. Dunno if this will work...
+    	priceFinalDollar = response.xpath('//dd[contains(@class, "priceFinal")]/span/text()')[0].extract()
+    	priceFinalDecimal = response.xpath('//dd[contains(@class, "priceFinal")]/span/descendant::*/text()').extract()
+    	priceFinalDecimal = ''.join(priceDecimal).strip().replace("\n","").replace("\r","").replace(" ","").replace("$","").replace("*","")
+    	priceFinal = ''.join((priceFinalDollar,priceFinalDecimal))
+    	_td_priceFinal = priceFinal
+		
 		item['detailsLink'] = response.url
 
 		return item
