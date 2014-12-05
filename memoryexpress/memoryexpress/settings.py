@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Scrapy settings for tigerdirect project
+# Scrapy settings for memoryexpress project
 #
 # For simplicity, this file contains only the most important settings by
 # default. All the other settings are documented here:
@@ -8,10 +8,10 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #
 
-BOT_NAME = 'tigerdirect'
+BOT_NAME = 'memoryexpress'
 
-SPIDER_MODULES = ['tigerdirect.spiders']
-NEWSPIDER_MODULE = 'tigerdirect.spiders'
-DOWNLOAD_DELAY = 0.25
+SPIDER_MODULES = ['memoryexpress.spiders']
+NEWSPIDER_MODULE = 'memoryexpress.spiders'
+
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'tigerdirect (+http://www.yourdomain.com)'
+#USER_AGENT = 'memoryexpress (+http://www.yourdomain.com)'

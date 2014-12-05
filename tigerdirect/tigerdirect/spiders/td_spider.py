@@ -3,6 +3,8 @@ import time
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
 from tigerdirect.items import TigerdirectItem
+from tigerdirect.items import SpecificationsItem
+import re
 
 class TigerDirectSpider(CrawlSpider): 
 	name = "tigerdirect"
@@ -20,17 +22,35 @@ class TigerDirectSpider(CrawlSpider):
 	#one page, for rules: http://www.tigerdirect.ca/applications/category/category_slc.asp?CatId=6845
 	#and item details: http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9561721&CatId=6845
 	rules = (
-		Rule(LinkExtractor(allow=('\.asp\?CatId', ))),
+		Rule(LinkExtractor(allow=('_.lc\.asp\?CatId=[0-9]+$', ),deny=('SearchTools')), callback='parse_categories', follow= True),
 		Rule(LinkExtractor(allow=('category\/super.asp?Id=', ))),
-		Rule(LinkExtractor(allow=('item-details\.asp\?EdpNo=', )), callback='parse_items', follow= True),
+		Rule(LinkExtractor(allow=('item-details\.asp\?EdpNo=[0-9]*\&[cC]at[iI]d=[0-9]+$', ),deny=('searchtools')), callback='parse_items', follow= True),
 	)
+
+	def parse_categories(self, response):
+		item = TigerDirectCategory()
+		item['type'] = "category"
+		item['name'] = "response.xpath('//a[@class="crumbCat"]/text()').extract()"
+		item['id'] = 
+		catHrefs = response.xpath('//a[@class="crumbCat"]/@href')
+		if catHrefs:	
+			categories = [];
+			i = 0
+			for categories in catHrefs:
+				hCat = TigerDirectCategory()
+				catQuery = re.compile('CatId=[0-9]+$')
+				hCat['id'] = re.findall(m,hrefs[0].extract()).replace("CatId=","")
+				hCat['name'] = response.xpath('//a[@class="crumbCat"]/text()')[i].extract()
+				categories.append(hCat)
+			item['hierarchy'] = categories
 
 	def parse_items(self, response):
 		#filename = response.url.split("/")[-2]
 		#with open(filename, 'wb') as f:
 		item = TigerdirectItem()
-
+		item['type'] = "product"
 		item['crawlTimestamp'] = time.time()
+		item['source'] = 'www.tigerdirect.ca'
 		#item ['_prodName'] = response.xpath('//div[@class="prodName"]').extract().strip()
 
 		item['productName'] = response.xpath('//div[@class="prodName"]/h1/text()').extract()
@@ -87,6 +107,23 @@ class TigerDirectSpider(CrawlSpider):
 			price = ''.join((dollar,decimal))
 			item['_td_priceFinal'] = price
 		
+		#specs:
+		#from the spec table
+		#th = key : response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()').extract()
+		#td = value : response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()').extract()  
+		specifications = []
+		specKeys = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()')
+		if specKeys:
+			i = 0
+			for key in specKeys:
+				value = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')[i]
+				s1 = SpecificationsItem(
+					)
+				s1['specName'] = key.extract()
+				s1['specValue'] = value.extract()
+				specifications.append(s1)
+				i = i + 1
+			item['specifications'] = specifications
 		item['detailsLink'] = response.url
 		return item
 		#f.write(response.body)
