@@ -8,7 +8,7 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #
 
-BOT_NAME = 'newegg_ca'
+BOT_NAME = 'neweggCanada'
 
 SPIDER_MODULES = ['newegg_ca.spiders']
 NEWSPIDER_MODULE = 'newegg_ca.spiders'

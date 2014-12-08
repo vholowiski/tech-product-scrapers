@@ -1,3 +1,4 @@
 tigerdirect/category 
 .DS_Store
 *.json
+*.pyc
