@@ -3,6 +3,7 @@ import time
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
 from tigerdirect.items import TigerdirectItem
+from tigerdirect.items import TigerDirectCategory
 from tigerdirect.items import SpecificationsItem
 import re
 
@@ -30,19 +31,21 @@ class TigerDirectSpider(CrawlSpider):
 	def parse_categories(self, response):
 		item = TigerDirectCategory()
 		item['type'] = "category"
-		item['name'] = "response.xpath('//a[@class="crumbCat"]/text()').extract()"
-		item['id'] = 
+		item['name'] = response.xpath('//a[@class="crumbCat"]/text()').extract()
+		#item['id'] = 
 		catHrefs = response.xpath('//a[@class="crumbCat"]/@href')
 		if catHrefs:	
-			categories = [];
+			categoriesAccumulated = [];
 			i = 0
 			for categories in catHrefs:
 				hCat = TigerDirectCategory()
 				catQuery = re.compile('CatId=[0-9]+$')
-				hCat['id'] = re.findall(m,hrefs[0].extract()).replace("CatId=","")
+				hCat['id'] = re.findall(catQuery, categories.extract())[0].replace("CatId=","")
+				#hCat['id'] = re.findall(catQuery, categories.extract().replace("CatId=","")
 				hCat['name'] = response.xpath('//a[@class="crumbCat"]/text()')[i].extract()
-				categories.append(hCat)
-			item['hierarchy'] = categories
+				categoriesAccumulated.append(hCat)
+			item['hierarchy'] = categoriesAccumulated
+		return item
 
 	def parse_items(self, response):
 		#filename = response.url.split("/")[-2]

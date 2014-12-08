@@ -12,6 +12,7 @@ class SpecificationsItem(scrapy.Item):
     specValue = scrapy.Field()
 
 class TigerDirectCategory(scrapy.Item):
+    type = scrapy.Field()
     name = scrapy.Field()
     id = scrapy.Field()
     uri = scrapy.Field()
