@@ -5,6 +5,7 @@ from scrapy.contrib.linkextractors import LinkExtractor
 from tigerdirect.items import TigerdirectItem
 from tigerdirect.items import TigerDirectCategory
 from tigerdirect.items import SpecificationsItem
+from tigerdirect.items import PriceItem
 import re
 
 class TigerDirectSpider(CrawlSpider): 
@@ -83,15 +84,22 @@ class TigerDirectSpider(CrawlSpider):
 		#salePriceNode = pricebox.xpath('//dt/following::dd[@class="salePrice priceToday"]')
 		#node0 = salePriceNode[0]
 		#price: ''.join(response.xpath('//dd[contains(@class, "salePrice")]/descendant::*/text()').extract())
+		
+		#create a new pricing object:
+		pricing = PriceItem()
+
 		salePrice = ''.join(response.xpath('//dd[contains(@class, "salePrice")]/descendant::*/text()').extract())
 		salePrice = salePrice.strip().replace(" ","").replace("$","")
-		item['_td_salePrice'] = salePrice
+		
+		#item['_td_salePrice'] = salePrice
+		pricing['salePrice'] = salePrice
 
 		priceRebateArray = response.xpath('//dd[contains(@class, "priceRebate")]/text()').extract()
 		if priceRebateArray:
 			priceRebate = priceRebateArray[0]
 			priceRebate = priceRebate.strip().replace("\n","").replace("\r","").replace(" ","").replace("$","")
-			item['_td_priceRebate'] = priceRebate
+			#item['_td_priceRebate'] = priceRebate
+			pricing['rebateAmount'] = priceRebate
 
 		#ugh. Messy. Dunno if this will work...
 		isThereaFinalPrice = response.xpath('//dd[contains(@class, "priceFinal")]')
@@ -108,8 +116,14 @@ class TigerDirectSpider(CrawlSpider):
 				decimal = ''.join(priceFinalDecimal).strip().replace("\n","").replace("\r","").replace(" ","").replace("$","").replace("*","")
 			
 			price = ''.join((dollar,decimal))
-			item['_td_priceFinal'] = price
-		
+			pricing['finalPrice'] = price
+			#item['_td_priceFinal'] = price
+		pricing['purchaseURL'] = response.url
+		pricing['crawlTimestamp'] = time.time()
+		pricing['source'] = 'www.tigerdirect.ca'
+		#and add the pricing to the pricings object
+		item['pricings'] = pricing
+
 		#specs:
 		#from the spec table
 		#th = key : response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()').extract()
