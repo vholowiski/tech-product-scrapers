@@ -6,6 +6,7 @@ from tigerdirect.items import TigerdirectItem
 from tigerdirect.items import TigerDirectCategory
 from tigerdirect.items import SpecificationsItem
 from tigerdirect.items import PriceItem
+from tigerdirect.items import TigerDirectManufacturer
 import re
 
 class TigerDirectSpider(CrawlSpider): 
@@ -32,20 +33,82 @@ class TigerDirectSpider(CrawlSpider):
 	def parse_categories(self, response):
 		item = TigerDirectCategory()
 		item['type'] = "category"
-		item['name'] = response.xpath('//a[@class="crumbCat"]/text()').extract()
-		#item['id'] = 
-		catHrefs = response.xpath('//a[@class="crumbCat"]/@href')
-		if catHrefs:	
-			categoriesAccumulated = [];
-			i = 0
-			for categories in catHrefs:
-				hCat = TigerDirectCategory()
-				catQuery = re.compile('CatId=[0-9]+$')
-				hCat['id'] = re.findall(catQuery, categories.extract())[0].replace("CatId=","")
+		itemName = response.xpath('//a[@class="crumbCat"]/text()').extract()
+		if itemName:
+			item['name'] = itemName[0]
+		
+		#collect manufacturers
+		mfgs = []
+		filterLinks = response.xpath('//ul[@class="filterItem"]/li/a')
+		for link in filterLinks:
+			mfg = TigerDirectManufacturer()
+			mfgName = link.xpath("text()").extract()[0]
+			mfg['name'] = mfgName
+
+			onclick = link.xpath("@onclick").extract()
+			if onclick:
+				#mfgquery = re.compile('(?![Mm]fr[Ii]d=)[0-9]+(?=\")')
+				mfgquery = re.compile('[Mm]fr[Ii]d=[0-9]+\"')
+				mfgId = re.findall(mfgquery, onclick[0])
+				if mfgId:
+					mfgId = mfgId[0].replace("MfrId=","").replace("\"","")
+					mfg['mfgID'] = mfgId
+					mfgs.append(mfg) #indented way up here so we only create this item if id exists
+			#mfg['mfgID'] = link.xpath("@onclick")
+			#if mfg['mfgID']:	
+		moreFilterLinks = response.xpath('//ul[@class="filterItem"]/span/li/a')
+		for link in moreFilterLinks:
+			if link:
+				mfg = TigerDirectManufacturer()
+				mfgName = link.xpath("text()").extract()[0]
+				mfg['name'] = mfgName
+
+				onclick = link.xpath("@onclick").extract()
+				if onclick:
+					#mfgquery = re.compile('(?![Mm]fr[Ii]d=)[0-9]+(?=\")')
+					mfgquery = re.compile('[Mm]fr[Ii]d=[0-9]+\"')
+					mfgId = re.findall(mfgquery, onclick[0])
+					if mfgId:
+						mfgId = mfgId[0].replace("MfrId=","").replace("\"","")
+						mfg['mfgID'] = mfgId
+						mfgs.append(mfg)
+
+		item['manufacturers'] = mfgs
+		
+		itemIdQuery = re.compile('[Cc]at[Ii]d=[0-9]+$')
+		categoryID = re.findall(itemIdQuery, response.url)[0]
+		item['id'] = categoryID.replace("CatId=", "")
+		#item['id'] =
+
+		#response.xpath('//ul[@class="filterItem"]/span/li/a').extract() 
+
+#filter categories response.xpath('//form[@id="filterForm"]/h5[@class="hSelector"]/a/text()').extract()
+#filter items for each category
+#all of them: response.xpath('//ul[@class="filterItem"]/li/a/text()').extract()
+
+#this gets links and onclicks (which contian mfg ids)
+#filterLinks = response.xpath('//ul[@class="filterItem"]/li/a')
+#for s in filterLinks:
+#	s.xpath("text()").extract()
+#	s.xpath("@onclick")
+#more = 
+#/following::ul[@class="filterItem"]/li/a/text()
+
+#//ul[@class="filterItem"]/li/text()/following::form[@id="filterForm"]/h5[@class="hSelector"]
+
+		#catHrefs = response.xpath('//a[@class="crumbCat"]/@href')
+		#if catHrefs:	
+		#	categoriesAccumulated = [];
+		#	i = 0
+		#	for categories in catHrefs:
+		#		hCat = TigerDirectCategory()
+		#		catQuery = re.compile('CatId=[0-9]+$')
+		#		hCat['id'] = re.findall(catQuery, categories.extract())[0].replace("CatId=","")
 				#hCat['id'] = re.findall(catQuery, categories.extract().replace("CatId=","")
-				hCat['name'] = response.xpath('//a[@class="crumbCat"]/text()')[i].extract()
-				categoriesAccumulated.append(hCat)
-			item['hierarchy'] = categoriesAccumulated
+		#		hCat['name'] = response.xpath('//a[@class="crumbCat"]/text()')[i].extract()
+		#		categoriesAccumulated.append(hCat)
+		#		i = i + 1
+		#	item['hierarchy'] = categoriesAccumulated
 		return item
 
 	def parse_items(self, response):

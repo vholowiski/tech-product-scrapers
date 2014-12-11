@@ -17,6 +17,10 @@ class TigerDirectCategory(scrapy.Item):
     id = scrapy.Field()
     uri = scrapy.Field()
     hierarchy = scrapy.Field()
+    manufacturers = scrapy.Field() #this contains an array of TigerDirectManufacturer s
+class TigerDirectManufacturer(scrapy.Item):
+    name = scrapy.Field()
+    mfgID = scrapy.Field()
 
 class PriceItem(scrapy.Item):
     source = scrapy.Field()
