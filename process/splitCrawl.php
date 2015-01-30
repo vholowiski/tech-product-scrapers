@@ -1,4 +1,12 @@
 <?php
+
+/*
+	This is the first step of processing. 
+	Seperates the single gigantic crawl file in to seperate files
+	One for each object type
+	Like - category, item, manufacturer etc
+*/
+
 require_once("loader.php");
 
 define('SILENT', false);
@@ -14,7 +22,8 @@ define('JSONMFGDIR', "/home/dholowiski/tech-product-scrapers/json/manufacturers"
 #var_dump(JSONBASEDIR);
 #echo("starting getManufacturers.php\n");
 
-
+//create a tiger direct identifier
+$tdID = new tdIdentifyObject();
 
 $directory_iterator = new RecursiveDirectoryIterator(JSONBASEDIR);
 
@@ -23,14 +32,39 @@ foreach (new RecursiveIteratorIterator($directory_iterator) as $filename => $fil
 	//TODO handle . and .. or in general non-json files
 
 	$js = new jsonObject($filename, false, true);
-	$json = $js->getjsonOBJ();
-	//var_dump($json);
-	
-	//var_dump($filename);
-	/*$arryFilename = explode('.', $filename);
-	//var_dump($arryFilename);
+	if ( $js->getFileIsJSON() ) {
+		//parse the file in to json
+		if (!SILENT ) { echo("Loading JSON... "); }
+		$json = $js->getjsonOBJ();
+		if (!SILENT ) { echo(count($json)." objects loaded.\n"); }
 
-	if ( isJsonFile($filename) ) {
+		//initialize counters:
+		$productCount = 0;
+		$categoryCount = 0;
+
+		//loop through it
+		if ( (count($json) > 0) ) {
+			foreach ( $json as $item ) {
+				$itemType = $tdID->findType($item);
+				//var_dump($itemType);
+				if ($itemType == ( $tdID->getProductKey() ) ) { $productCount++; }
+				if ($itemType == ( $tdID->getCategoryKey() ) ) { $categoryCount++; }
+
+			}
+		}
+		if (!SILENT ) { echo("Done processing. Found: $productCount products.\n"); }
+		if (!SILENT ) { echo("Done processing. Found: $categoryCount categories.\n"); }
+
+	} else {
+		//if (!SILENT && DEBUG ) { echo("Skipping - not a JSON file $filename\n"); }
+	}
+	
+
+	//now, line by line, identify what the object is
+	//and put ti in the right place
+
+
+	/*if ( isJsonFile($filename) ) {
 		//if (!SILENT) {  echo("Processing file: $filename | Size: ".filesize($filename)."\n"); }
 		$fileContents = loadFile($filename);
 		//var_dump($fileContents);
