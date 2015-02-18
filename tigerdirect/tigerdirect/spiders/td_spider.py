@@ -12,12 +12,6 @@ import re
 class TigerDirectSpider(CrawlSpider): 
 	name = "tigerdirect"
 	allowed_domains = ["www.tigerdirect.ca"]
-	#start_urls = ["http://www.tigerdirect.ca/applications/category/category_slc.asp?Recs=30&Nav=|c:6957|&Sort=4",
-	#"http://www.tigerdirect.ca/applications/category/category_slc.asp?page=2&Nav=|c:6957|&Sort=4&Recs=30",
-	#"http://www.tigerdirect.ca/applications/category/category_slc.asp?page=3&Nav=|c:6957|&Sort=4&Recs=30",
-	#"http://www.tigerdirect.ca/applications/category/category_slc.asp?page=4&Nav=|c:6957|&Sort=4&Recs=30"
-	#]
-	#start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9516609&CatId=6957"]
 	start_urls = ["http://www.tigerdirect.ca/sectors/category/site-directory.asp",
 	"http://www.tigerdirect.ca/applications/Refurb/refurb_tlc.asp",
 	"http://www.tigerdirect.ca/applications/openbox/openbox_tlc.asp",
@@ -78,37 +72,6 @@ class TigerDirectSpider(CrawlSpider):
 		itemIdQuery = re.compile('[Cc]at[Ii]d=[0-9]+$')
 		categoryID = re.findall(itemIdQuery, response.url)[0]
 		item['id'] = categoryID.replace("CatId=", "")
-		#item['id'] =
-
-		#response.xpath('//ul[@class="filterItem"]/span/li/a').extract() 
-
-#filter categories response.xpath('//form[@id="filterForm"]/h5[@class="hSelector"]/a/text()').extract()
-#filter items for each category
-#all of them: response.xpath('//ul[@class="filterItem"]/li/a/text()').extract()
-
-#this gets links and onclicks (which contian mfg ids)
-#filterLinks = response.xpath('//ul[@class="filterItem"]/li/a')
-#for s in filterLinks:
-#	s.xpath("text()").extract()
-#	s.xpath("@onclick")
-#more = 
-#/following::ul[@class="filterItem"]/li/a/text()
-
-#//ul[@class="filterItem"]/li/text()/following::form[@id="filterForm"]/h5[@class="hSelector"]
-
-		#catHrefs = response.xpath('//a[@class="crumbCat"]/@href')
-		#if catHrefs:	
-		#	categoriesAccumulated = [];
-		#	i = 0
-		#	for categories in catHrefs:
-		#		hCat = TigerDirectCategory()
-		#		catQuery = re.compile('CatId=[0-9]+$')
-		#		hCat['id'] = re.findall(catQuery, categories.extract())[0].replace("CatId=","")
-				#hCat['id'] = re.findall(catQuery, categories.extract().replace("CatId=","")
-		#		hCat['name'] = response.xpath('//a[@class="crumbCat"]/text()')[i].extract()
-		#		categoriesAccumulated.append(hCat)
-		#		i = i + 1
-		#	item['hierarchy'] = categoriesAccumulated
 		return item
 
 	def parse_items(self, response):
