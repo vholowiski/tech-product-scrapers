@@ -34,7 +34,7 @@ class PriceItem(scrapy.Item):
 class TigerdirectItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    type = scrapy.Field()
+    itemType = scrapy.Field()   #item['type'] = "product"
     productName = scrapy.Field()
     link = scrapy.Field()
     detailsLink = scrapy.Field()

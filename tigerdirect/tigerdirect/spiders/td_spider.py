@@ -78,7 +78,7 @@ class TigerDirectSpider(CrawlSpider):
 		#filename = response.url.split("/")[-2]
 		#with open(filename, 'wb') as f:
 		item = TigerdirectItem()
-		item['type'] = "product"
+		item['itemType'] = "product"
 		item['crawlTimestamp'] = time.time()
 		item['source'] = 'www.tigerdirect.ca'
 		#item ['_prodName'] = response.xpath('//div[@class="prodName"]').extract().strip()
