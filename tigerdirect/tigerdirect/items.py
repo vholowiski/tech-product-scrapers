@@ -10,17 +10,20 @@ import scrapy
 class SpecificationsItem(scrapy.Item):
     specName = scrapy.Field()
     specValue = scrapy.Field()
+    itemType = scrapy.Field() # specifications
 
 class TigerDirectCategory(scrapy.Item):
-    type = scrapy.Field()
-    name = scrapy.Field()
-    id = scrapy.Field()
+    itemType = scrapy.Field() #category
+    categoryName = scrapy.Field()
+    tdCategoryID= scrapy.Field()
     uri = scrapy.Field()
     hierarchy = scrapy.Field()
     manufacturers = scrapy.Field() #this contains an array of TigerDirectManufacturer s
+
 class TigerDirectManufacturer(scrapy.Item):
-    name = scrapy.Field()
+    mfgName = scrapy.Field()
     mfgID = scrapy.Field()
+    itemType = scrapy.Field() # manufacturer
 
 class PriceItem(scrapy.Item):
     source = scrapy.Field()
@@ -30,6 +33,7 @@ class PriceItem(scrapy.Item):
     rebateAmount = scrapy.Field()
     finalPrice = scrapy.Field()
     purchaseURL = scrapy.Field()
+    itemType = scrapy.Field() # price
 
 class TigerdirectItem(scrapy.Item):
     # define the fields for your item here like:

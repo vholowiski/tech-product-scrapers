@@ -17,5 +17,5 @@ DOWNLOAD_DELAY = 0.25
 #USER_AGENT = 'tigerdirect (+http://www.yourdomain.com)'
 ITEM_PIPELINES = { 
 	'tigerdirect.pipelines.CategoryPipeline': 600,
-	'tigerdirect.pipelines.JsonWriterPipeline': 800
+	'tigerdirect.pipelines.WriteMongo': 900,
 	}
