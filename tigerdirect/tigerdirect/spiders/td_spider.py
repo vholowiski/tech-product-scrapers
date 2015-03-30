@@ -17,12 +17,6 @@ from tigerdirect.spiders.categoryItemLoader import CategoryItemLoader
 class TigerDirectSpider(CrawlSpider): 
 	name = "tigerdirect"
 	allowed_domains = ["www.tigerdirect.ca"]
-	#start_urls = ["http://www.tigerdirect.ca/applications/category/category_slc.asp?Recs=30&Nav=|c:6957|&Sort=4",
-	#"http://www.tigerdirect.ca/applications/category/category_slc.asp?page=2&Nav=|c:6957|&Sort=4&Recs=30",
-	#"http://www.tigerdirect.ca/applications/category/category_slc.asp?page=3&Nav=|c:6957|&Sort=4&Recs=30",
-	#"http://www.tigerdirect.ca/applications/category/category_slc.asp?page=4&Nav=|c:6957|&Sort=4&Recs=30"
-	#]
-	#start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9516609&CatId=6957"]
 	start_urls = ["http://www.tigerdirect.ca/sectors/category/site-directory.asp",
 	"http://www.tigerdirect.ca/applications/Refurb/refurb_tlc.asp",
 	"http://www.tigerdirect.ca/applications/openbox/openbox_tlc.asp",
@@ -44,9 +38,11 @@ class TigerDirectSpider(CrawlSpider):
 		item['type'] = "category"
 
 		l.add_value('name', response.xpath('//a[@class="crumbCat"]/text()').extract())
+		item['itemType'] = "category"
+
 		itemName = response.xpath('//a[@class="crumbCat"]/text()').extract()
 		if itemName:
-			item['name'] = itemName[0]
+			item['categoryName'] = itemName[0]
 		
 		l.add_value('id', response.url)
 		itemIdQuery = re.compile('[Cc]at[Ii]d=[0-9]+$')
@@ -63,8 +59,8 @@ class TigerDirectSpider(CrawlSpider):
 		for link in filterLinks:
 			mfg = TigerDirectManufacturer()
 			mfgName = link.xpath("text()").extract()[0]
-			mfg['name'] = mfgName
-
+			mfg['mfgName'] = mfgName.encode('utf-8').strip()
+			mfg['itemType'] = 'manufacturer'
 			onclick = link.xpath("@onclick").extract()
 			if onclick:
 				#mfgquery = re.compile('(?![Mm]fr[Ii]d=)[0-9]+(?=\")')
@@ -72,7 +68,7 @@ class TigerDirectSpider(CrawlSpider):
 				mfgId = re.findall(mfgquery, onclick[0])
 				if mfgId:
 					mfgId = mfgId[0].replace("MfrId=","").replace("\"","")
-					mfg['mfgID'] = mfgId
+					mfg['mfgID'] = mfgId.encode('utf-8')
 					mfgs.append(mfg) #indented way up here so we only create this item if id exists
 			#mfg['mfgID'] = link.xpath("@onclick")
 			#if mfg['mfgID']:	
@@ -81,8 +77,8 @@ class TigerDirectSpider(CrawlSpider):
 			if link:
 				mfg = TigerDirectManufacturer()
 				mfgName = link.xpath("text()").extract()[0]
-				mfg['name'] = mfgName
-
+				mfg['mfgName'] = mfgName.encode('utf-8').strip()
+				mfg['itemType'] = 'manufacturer'
 				onclick = link.xpath("@onclick").extract()
 				if onclick:
 					#mfgquery = re.compile('(?![Mm]fr[Ii]d=)[0-9]+(?=\")')
@@ -90,18 +86,18 @@ class TigerDirectSpider(CrawlSpider):
 					mfgId = re.findall(mfgquery, onclick[0])
 					if mfgId:
 						mfgId = mfgId[0].replace("MfrId=","").replace("\"","")
-						mfg['mfgID'] = mfgId
+						mfg['mfgID'] = mfgId.encode('utf-8')
 						mfgs.append(mfg)
 
-		item['manufacturers'] = mfgs
 
+		#item['manufacturers'] = mfgs
 		return item
 
 	def parse_items(self, response):
 		#filename = response.url.split("/")[-2]
 		#with open(filename, 'wb') as f:
 		item = TigerdirectItem()
-		item['type'] = "product"
+		item['itemType'] = "product"
 		item['crawlTimestamp'] = time.time()
 		item['source'] = 'www.tigerdirect.ca'
 		#item ['_prodName'] = response.xpath('//div[@class="prodName"]').extract().strip()
@@ -136,7 +132,7 @@ class TigerDirectSpider(CrawlSpider):
 		
 		#create a new pricing object:
 		pricing = PriceItem()
-
+		pricing['itemType'] = 'price'
 		salePrice = ''.join(response.xpath('//dd[contains(@class, "salePrice")]/descendant::*/text()').extract())
 		salePrice = salePrice.strip().replace(" ","").replace("$","")
 		
@@ -189,6 +185,7 @@ class TigerDirectSpider(CrawlSpider):
 				s1['specValue'] = value.extract()
 				specifications.append(s1)
 				i = i + 1
+			specifications['itemType'] = 'specifications'
 			item['specifications'] = specifications
 		item['detailsLink'] = response.url
 		return item
