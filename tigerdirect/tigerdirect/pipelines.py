@@ -6,7 +6,7 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 #import json
 from scrapy.exceptions import DropItem
-from pymongo import MongoClient
+#from pymongo import MongoClient
 import datetime
 from scrapy import log
 import json

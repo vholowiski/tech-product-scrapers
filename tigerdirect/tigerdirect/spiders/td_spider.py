@@ -12,7 +12,7 @@ from tigerdirect.items import PriceItem
 from tigerdirect.items import TigerDirectManufacturer
 
 from tigerdirect.spiders.categoryItemLoader import CategoryItemLoader
-
+from tigerdirect.spiders.mfgItemLoader import MfgItemLoader
 
 class TigerDirectSpider(CrawlSpider): 
 	name = "tigerdirect"
@@ -31,67 +31,66 @@ class TigerDirectSpider(CrawlSpider):
 
 	def parse_categories(self, response):
 		l = CategoryItemLoader(TigerDirectCategory(), response)
+		l.add_value('itemType', 'category')
+		l.add_value('categoryName', response.xpath('//a[@class="crumbCat"]/text()').extract())
+		l.add_value('tdCategoryID', response.url)
+		#manufacturers
+		for link in response.xpath('//ul[@class="filterItem"]/li/a'):
+			l.add_value('manufacturers', link)
+		l.add_value('uri', response.url)
+		itemProcessedCatetory = TigerDirectCategory(l.load_item())
+		yield itemProcessedCatetory
 
-		item = TigerDirectCategory()
-
-		l.add_value('type', 'category')
-		item['type'] = "category"
-
-		l.add_value('name', response.xpath('//a[@class="crumbCat"]/text()').extract())
-		item['itemType'] = "category"
-
-		itemName = response.xpath('//a[@class="crumbCat"]/text()').extract()
-		if itemName:
-			item['categoryName'] = itemName[0]
-		
-		l.add_value('id', response.url)
-		itemIdQuery = re.compile('[Cc]at[Ii]d=[0-9]+$')
-		categoryID = re.findall(itemIdQuery, response.url)[0]
-		item['id'] = categoryID.replace("CatId=", "")
-
-		processedCatetory = TigerDirectCategory(l.load_item())
-		print "processed category"
-		print processedCatetory
-
-		#collect manufacturers
-		mfgs = []
-		filterLinks = response.xpath('//ul[@class="filterItem"]/li/a')
-		for link in filterLinks:
-			mfg = TigerDirectManufacturer()
+		# #collect manufacturers
+		for link in response.xpath('//ul[@class="filterItem"]/li/a'):
+			ll = MfgItemLoader(TigerDirectManufacturer(), response)
+			
 			mfgName = link.xpath("text()").extract()[0]
-			mfg['mfgName'] = mfgName.encode('utf-8').strip()
-			mfg['itemType'] = 'manufacturer'
-			onclick = link.xpath("@onclick").extract()
-			if onclick:
-				#mfgquery = re.compile('(?![Mm]fr[Ii]d=)[0-9]+(?=\")')
-				mfgquery = re.compile('[Mm]fr[Ii]d=[0-9]+\"')
-				mfgId = re.findall(mfgquery, onclick[0])
-				if mfgId:
-					mfgId = mfgId[0].replace("MfrId=","").replace("\"","")
-					mfg['mfgID'] = mfgId.encode('utf-8')
-					mfgs.append(mfg) #indented way up here so we only create this item if id exists
-			#mfg['mfgID'] = link.xpath("@onclick")
-			#if mfg['mfgID']:	
-		moreFilterLinks = response.xpath('//ul[@class="filterItem"]/span/li/a')
-		for link in moreFilterLinks:
-			if link:
-				mfg = TigerDirectManufacturer()
-				mfgName = link.xpath("text()").extract()[0]
-				mfg['mfgName'] = mfgName.encode('utf-8').strip()
-				mfg['itemType'] = 'manufacturer'
-				onclick = link.xpath("@onclick").extract()
-				if onclick:
-					#mfgquery = re.compile('(?![Mm]fr[Ii]d=)[0-9]+(?=\")')
-					mfgquery = re.compile('[Mm]fr[Ii]d=[0-9]+\"')
-					mfgId = re.findall(mfgquery, onclick[0])
-					if mfgId:
-						mfgId = mfgId[0].replace("MfrId=","").replace("\"","")
-						mfg['mfgID'] = mfgId.encode('utf-8')
-						mfgs.append(mfg)
+			mfgName = mfgName.encode('utf-8').strip()
+			ll.add_value('mfgName', 'abc')
+
+			itemManufacturer = TigerDirectManufacturer(ll.load_item)
+			yield itemManufacturer
+			
+		# mfgs = []
+		# filterLinks = response.xpath('//ul[@class="filterItem"]/li/a')
+		# for link in filterLinks:
+		# 	mfg = TigerDirectManufacturer()
+		# 	mfgName = link.xpath("text()").extract()[0]
+		# 	mfg['mfgName'] = mfgName.encode('utf-8').strip()
+		# 	mfg['itemType'] = 'manufacturer'
+		# 	onclick = link.xpath("@onclick").extract()
+		# 	if onclick:
+		# 		#mfgquery = re.compile('(?![Mm]fr[Ii]d=)[0-9]+(?=\")')
+		# 		mfgquery = re.compile('[Mm]fr[Ii]d=[0-9]+\"')
+		# 		mfgId = re.findall(mfgquery, onclick[0])
+		# 		if mfgId:
+		# 			mfgId = mfgId[0].replace("MfrId=","").replace("\"","")
+		# 			mfg['mfgID'] = mfgId.encode('utf-8')
+		# 			mfgs.append(mfg) #indented way up here so we only create this item if id exists
+		# 	#mfg['mfgID'] = link.xpath("@onclick")
+		# 	#if mfg['mfgID']:	
+		# moreFilterLinks = response.xpath('//ul[@class="filterItem"]/span/li/a')
+		# for link in moreFilterLinks:
+		# 	if link:
+		# 		mfg = TigerDirectManufacturer()
+		# 		mfgName = link.xpath("text()").extract()[0]
+		# 		mfg['mfgName'] = mfgName.encode('utf-8').strip()
+		# 		mfg['itemType'] = 'manufacturer'
+		# 		onclick = link.xpath("@onclick").extract()
+		# 		if onclick:
+		# 			#mfgquery = re.compile('(?![Mm]fr[Ii]d=)[0-9]+(?=\")')
+		# 			mfgquery = re.compile('[Mm]fr[Ii]d=[0-9]+\"')
+		# 			mfgId = re.findall(mfgquery, onclick[0])
+		# 			if mfgId:
+		# 				mfgId = mfgId[0].replace("MfrId=","").replace("\"","")
+		# 				mfg['mfgID'] = mfgId.encode('utf-8')
+		# 				mfgs.append(mfg)
 
 
-		#item['manufacturers'] = mfgs
-		return item
+		# #item['manufacturers'] = mfgs
+		# #return item
+		# yield item
 
 	def parse_items(self, response):
 		#filename = response.url.split("/")[-2]
