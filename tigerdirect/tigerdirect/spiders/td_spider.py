@@ -1,13 +1,18 @@
 import scrapy
 import time
+import re
+
 from scrapy.contrib.spiders import CrawlSpider, Rule
 from scrapy.contrib.linkextractors import LinkExtractor
+
 from tigerdirect.items import TigerdirectItem
 from tigerdirect.items import TigerDirectCategory
 from tigerdirect.items import SpecificationsItem
 from tigerdirect.items import PriceItem
 from tigerdirect.items import TigerDirectManufacturer
-import re
+
+from tigerdirect.spiders.categoryItemLoader import CategoryItemLoader
+
 
 class TigerDirectSpider(CrawlSpider): 
 	name = "tigerdirect"
@@ -31,12 +36,27 @@ class TigerDirectSpider(CrawlSpider):
 	)
 
 	def parse_categories(self, response):
+		l = CategoryItemLoader(TigerDirectCategory(), response)
+
 		item = TigerDirectCategory()
+
+		l.add_value('type', 'category')
 		item['type'] = "category"
+
+		l.add_value('name', response.xpath('//a[@class="crumbCat"]/text()').extract())
 		itemName = response.xpath('//a[@class="crumbCat"]/text()').extract()
 		if itemName:
 			item['name'] = itemName[0]
 		
+		l.add_value('id', response.url)
+		itemIdQuery = re.compile('[Cc]at[Ii]d=[0-9]+$')
+		categoryID = re.findall(itemIdQuery, response.url)[0]
+		item['id'] = categoryID.replace("CatId=", "")
+
+		processedCatetory = TigerDirectCategory(l.load_item())
+		print "processed category"
+		print processedCatetory
+
 		#collect manufacturers
 		mfgs = []
 		filterLinks = response.xpath('//ul[@class="filterItem"]/li/a')
@@ -74,41 +94,7 @@ class TigerDirectSpider(CrawlSpider):
 						mfgs.append(mfg)
 
 		item['manufacturers'] = mfgs
-		
-		itemIdQuery = re.compile('[Cc]at[Ii]d=[0-9]+$')
-		categoryID = re.findall(itemIdQuery, response.url)[0]
-		item['id'] = categoryID.replace("CatId=", "")
-		#item['id'] =
 
-		#response.xpath('//ul[@class="filterItem"]/span/li/a').extract() 
-
-#filter categories response.xpath('//form[@id="filterForm"]/h5[@class="hSelector"]/a/text()').extract()
-#filter items for each category
-#all of them: response.xpath('//ul[@class="filterItem"]/li/a/text()').extract()
-
-#this gets links and onclicks (which contian mfg ids)
-#filterLinks = response.xpath('//ul[@class="filterItem"]/li/a')
-#for s in filterLinks:
-#	s.xpath("text()").extract()
-#	s.xpath("@onclick")
-#more = 
-#/following::ul[@class="filterItem"]/li/a/text()
-
-#//ul[@class="filterItem"]/li/text()/following::form[@id="filterForm"]/h5[@class="hSelector"]
-
-		#catHrefs = response.xpath('//a[@class="crumbCat"]/@href')
-		#if catHrefs:	
-		#	categoriesAccumulated = [];
-		#	i = 0
-		#	for categories in catHrefs:
-		#		hCat = TigerDirectCategory()
-		#		catQuery = re.compile('CatId=[0-9]+$')
-		#		hCat['id'] = re.findall(catQuery, categories.extract())[0].replace("CatId=","")
-				#hCat['id'] = re.findall(catQuery, categories.extract().replace("CatId=","")
-		#		hCat['name'] = response.xpath('//a[@class="crumbCat"]/text()')[i].extract()
-		#		categoriesAccumulated.append(hCat)
-		#		i = i + 1
-		#	item['hierarchy'] = categoriesAccumulated
 		return item
 
 	def parse_items(self, response):
