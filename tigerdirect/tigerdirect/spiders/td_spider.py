@@ -43,13 +43,11 @@ class TigerDirectSpider(CrawlSpider):
 
 		# #collect manufacturers
 		for link in response.xpath('//ul[@class="filterItem"]/li/a'):
-			ll = MfgItemLoader(TigerDirectManufacturer(), response)
-			
-			mfgName = link.xpath("text()").extract()[0]
-			mfgName = mfgName.encode('utf-8').strip()
-			ll.add_value('mfgName', 'abc')
-
-			itemManufacturer = TigerDirectManufacturer(ll.load_item)
+			l = MfgItemLoader(TigerDirectManufacturer(), response)
+			l.add_value('mfgName', link.xpath("text()").extract()[0])
+			l.add_value('itemType', 'manufacturer')
+			l.add_value('mfgID', link)
+			itemManufacturer = TigerDirectManufacturer(l.load_item())
 			yield itemManufacturer
 			
 		# mfgs = []
