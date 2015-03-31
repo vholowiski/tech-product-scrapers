@@ -131,6 +131,10 @@ class TigerDirectSpider(CrawlSpider):
 		#and add the pricing to the pricings object
 		item['pricings'] = pricing
 
+		#TODO get price for 'add to car to see price'
+		#http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?CatId=5739&EdpNo=9641093
+		#its in the javascript!
+		
 		priceItem = PriceItem(l.load_item())
 		yield priceItem
 
@@ -138,21 +142,24 @@ class TigerDirectSpider(CrawlSpider):
 		#from the spec table
 		#th = key : response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()').extract()
 		#td = value : response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()').extract()  
-		specifications = []
-		specKeys = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()')
-		if specKeys:
-			i = 0
-			for key in specKeys:
-				value = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')[i]
-				s1 = SpecificationsItem(
-					)
-				s1['specName'] = key.extract()
-				s1['specValue'] = value.extract()
-				specifications.append(s1)
-				i = i + 1
-			specifications['itemType'] = 'specifications'
-			item['specifications'] = specifications
-		item['detailsLink'] = response.url
+			
+		#temporarily commenting out. horribly broken
+
+		# specifications = []
+		# specKeys = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()')
+		# if specKeys:
+		# 	i = 0
+		# 	for key in specKeys:
+		# 		value = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')[i]
+		# 		s1 = SpecificationsItem(
+		# 			)
+		# 		s1['specName'] = key.extract()
+		# 		s1['specValue'] = value.extract()
+		# 		specifications.append(s1)
+		# 		i = i + 1
+		# 	specifications['itemType'] = 'specifications'
+		# 	item['specifications'] = specifications
+		# item['detailsLink'] = response.url
 		#return item
 		#f.write(response.body)
 		#products = response.xpath('//div[@class="product"]')

@@ -14,14 +14,19 @@ class PriceItemLoader(ItemLoader):
 		return priceRebate
 	def parseFinalPrice(priceIn):
 		#print priceIn
-		dollarQuery = re.compile('(?:[Ss]ale[Pp]rice.+?)([0-9]+)') #this regex should get just the numeric dollar amount
-		dollar = re.findall(dollarQuery, priceIn)[0]
+		query = re.compile('[0-9\.]')
+		price = re.findall(query, priceIn)
+		if price:
+			finalPrice = ''.join(price)
+		#print priceIn
+		#dollarQuery = re.compile('(?:[Ss]ale[Pp]rice.+?)([0-9]+)') #this regex should get just the numeric dollar amount
+		#dollar = re.findall(dollarQuery, priceIn)[0]
 		
-		decimalQuery = re.compile('(?:[pP]rice[dD]ecimal[mM]ark.*)[0-9]+')
-		decimal = re.findall(decimalQuery, priceIn)[0]
-		secondDecimalQuery = re.compile('[0-9]+')
-		decimal = re.findall(secondDecimalQuery, priceIn)[0]
-		finalPrice = '.'.join((dollar,decimal))
+		#decimalQuery = re.compile('(?:[pP]rice[dD]ecimal[mM]ark.*)[0-9]+')
+		#decimal = re.findall(decimalQuery, priceIn)[0]
+		#secondDecimalQuery = re.compile('[0-9]+')
+		#decimal = re.findall(secondDecimalQuery, priceIn)[0]
+		#finalPrice = '.'.join((dollar,decimal))
 		return finalPrice
 
 	default_input_processor = Identity()
