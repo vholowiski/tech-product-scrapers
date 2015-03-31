@@ -28,6 +28,7 @@ class TigerDirectManufacturer(scrapy.Item):
 class PriceItem(scrapy.Item):
     source = scrapy.Field()
     crawlTimestamp = scrapy.Field()
+    _td_priceBox = scrapy.Field()
     fullPrice = scrapy.Field()
     salePrice = scrapy.Field()
     rebateAmount = scrapy.Field()

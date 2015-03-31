@@ -19,10 +19,8 @@ from tigerdirect.spiders.priceItemLoader import PriceItemLoader
 class TigerDirectSpider(CrawlSpider): 
 	name = "tigerdirect"
 	allowed_domains = ["www.tigerdirect.ca"]
-	start_urls = ["http://www.tigerdirect.ca/sectors/category/site-directory.asp",
-	"http://www.tigerdirect.ca/applications/Refurb/refurb_tlc.asp",
-	"http://www.tigerdirect.ca/applications/openbox/openbox_tlc.asp",
-	"http://www.tigerdirect.ca/applications/campaigns/deals.asp?campaignid=2835"]
+	start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=8198962&Sku=H450-8419", "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=5774231&CatId=234","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
+	#start_urls = ["http://www.tigerdirect.ca/sectors/category/site-directory.asp",	"http://www.tigerdirect.ca/applications/Refurb/refurb_tlc.asp",	"http://www.tigerdirect.ca/applications/openbox/openbox_tlc.asp",	"http://www.tigerdirect.ca/applications/campaigns/deals.asp?campaignid=2835"]
 	#one page, for rules: http://www.tigerdirect.ca/applications/category/category_slc.asp?CatId=6845
 	#and item details: http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9561721&CatId=6845
 	rules = (
@@ -55,6 +53,21 @@ class TigerDirectSpider(CrawlSpider):
 				yield itemManufacturer
 
 	def parse_items(self, response):
+		print "****"
+		print "****"
+		print "****"
+		print "****"
+		print "****"
+		print "****"
+		print "item"
+		print "****"
+		print "****"
+		print "****"
+		print "****"
+		print "****"
+		print "****"
+		print "****"
+		
 		l = ItemItemLoader(TigerdirectItem(), response)
 		item = TigerdirectItem()
 		l.add_value('itemType', 'product')
@@ -64,31 +77,37 @@ class TigerDirectSpider(CrawlSpider):
 		l.add_value('itemNo', response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[0].extract())
 		l.add_value('modelNo', response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[1].extract())
 		l.add_value('tdCategoryID', response.url)
+		l.add_value('link', response.url)
 		itemItem = TigerdirectItem(l.load_item())
 		yield itemItem
 
 		l = PriceItemLoader(PriceItem(), response)
+		l.add_value('_td_priceBox', response.xpath('//dl[@class="priceBox"]').extract())
+		
+		#pricing['itemType'] = 'price'
 		l.add_value('itemType', 'price')
 
 		pricing = PriceItem()
-		#pricing['itemType'] = 'price'
+		
 		l.add_xpath('salePrice', ('//dd[contains(@class, "salePrice")]/descendant::*/text()'))
 
-		salePrice = ''.join(response.xpath('//dd[contains(@class, "salePrice")]/descendant::*/text()').extract())
-		salePrice = salePrice.strip().replace(" ","").replace("$","")
+		#salePrice = ''.join(response.xpath('//dd[contains(@class, "salePrice")]/descendant::*/text()').extract())
+		#salePrice = salePrice.strip().replace(" ","").replace("$","")
 		
 		#item['_td_salePrice'] = salePrice
-		pricing['salePrice'] = salePrice
+		#pricing['salePrice'] = salePrice
 
 		l.add_xpath('rebateAmount', ('//dd[contains(@class, "priceRebate")]/text()'))
 		
-		priceRebateArray = response.xpath('//dd[contains(@class, "priceRebate")]/text()').extract()
-		if priceRebateArray:
-			priceRebate = priceRebateArray[0]
-			priceRebate = priceRebate.strip().replace("\n","").replace("\r","").replace(" ","").replace("$","")
-			#item['_td_priceRebate'] = priceRebate
-			pricing['rebateAmount'] = priceRebate
+		#priceRebateArray = response.xpath('//dd[contains(@class, "priceRebate")]/text()').extract()
+		#if priceRebateArray:
+		#	priceRebate = priceRebateArray[0]
+		#	priceRebate = priceRebate.strip().replace("\n","").replace("\r","").replace(" ","").replace("$","")
+		#	#item['_td_priceRebate'] = priceRebate
+		#	pricing['rebateAmount'] = priceRebate
 
+		#if response.xpath('//dd[contains(@class, "priceFinal")]'):
+		l.add_value('finalPrice', response.xpath('//dd[contains(@class, "priceFinal")]').extract())
 		#ugh. Messy. Dunno if this will work...
 		isThereaFinalPrice = response.xpath('//dd[contains(@class, "priceFinal")]')
 		if isThereaFinalPrice:
