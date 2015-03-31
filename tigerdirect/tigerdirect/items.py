@@ -45,6 +45,7 @@ class TigerdirectItem(scrapy.Item):
     #listPrice = scrapy.Field()
     itemNo = scrapy.Field()
     modelNo = scrapy.Field()
+    tdCategoryID = scrapy.Field()
     specifications = scrapy.Field()
     source = scrapy.Field()
     crawlTimestamp = scrapy.Field()

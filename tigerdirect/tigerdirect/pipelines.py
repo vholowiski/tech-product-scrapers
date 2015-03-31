@@ -11,18 +11,13 @@ import datetime
 from scrapy import log
 import json
 
-class CategoryPipeline(object):
-    #def process_item(self, item, spider):
-    #    return item
-
+class manufacturerPipeline(object):
 	def process_item(self, item, spider):
-		#if item:
-		#	if hasattr(item, 'id'):
-		#		item['id'] = 'shazbot'
-		#	return item
-		#else:
-		#	raise DropItem("Shitballs. Did nto get item.")
-		return item
+		if 'mfgName' in item:
+			if 'mfgID' in item:
+				return item
+		else:
+			raise DropItem("incomplete manufacturer" % item)
 
 class WriteMongo(object):
 	def process_item(self, item, spider):

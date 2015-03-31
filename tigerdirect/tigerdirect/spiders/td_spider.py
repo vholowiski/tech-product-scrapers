@@ -13,6 +13,8 @@ from tigerdirect.items import TigerDirectManufacturer
 
 from tigerdirect.spiders.categoryItemLoader import CategoryItemLoader
 from tigerdirect.spiders.mfgItemLoader import MfgItemLoader
+from tigerdirect.spiders.itemItemLoader import ItemItemLoader
+from tigerdirect.spiders.priceItemLoader import PriceItemLoader
 
 class TigerDirectSpider(CrawlSpider): 
 	name = "tigerdirect"
@@ -41,101 +43,45 @@ class TigerDirectSpider(CrawlSpider):
 		itemProcessedCatetory = TigerDirectCategory(l.load_item())
 		yield itemProcessedCatetory
 
-		# #collect manufacturers
-		for link in response.xpath('//ul[@class="filterItem"]/li/a'):
-			l = MfgItemLoader(TigerDirectManufacturer(), response)
-			l.add_value('mfgName', link.xpath("text()").extract()[0])
-			l.add_value('itemType', 'manufacturer')
-			l.add_value('mfgID', link)
-			itemManufacturer = TigerDirectManufacturer(l.load_item())
-			yield itemManufacturer
-			
-		# mfgs = []
-		# filterLinks = response.xpath('//ul[@class="filterItem"]/li/a')
-		# for link in filterLinks:
-		# 	mfg = TigerDirectManufacturer()
-		# 	mfgName = link.xpath("text()").extract()[0]
-		# 	mfg['mfgName'] = mfgName.encode('utf-8').strip()
-		# 	mfg['itemType'] = 'manufacturer'
-		# 	onclick = link.xpath("@onclick").extract()
-		# 	if onclick:
-		# 		#mfgquery = re.compile('(?![Mm]fr[Ii]d=)[0-9]+(?=\")')
-		# 		mfgquery = re.compile('[Mm]fr[Ii]d=[0-9]+\"')
-		# 		mfgId = re.findall(mfgquery, onclick[0])
-		# 		if mfgId:
-		# 			mfgId = mfgId[0].replace("MfrId=","").replace("\"","")
-		# 			mfg['mfgID'] = mfgId.encode('utf-8')
-		# 			mfgs.append(mfg) #indented way up here so we only create this item if id exists
-		# 	#mfg['mfgID'] = link.xpath("@onclick")
-		# 	#if mfg['mfgID']:	
-		# moreFilterLinks = response.xpath('//ul[@class="filterItem"]/span/li/a')
-		# for link in moreFilterLinks:
-		# 	if link:
-		# 		mfg = TigerDirectManufacturer()
-		# 		mfgName = link.xpath("text()").extract()[0]
-		# 		mfg['mfgName'] = mfgName.encode('utf-8').strip()
-		# 		mfg['itemType'] = 'manufacturer'
-		# 		onclick = link.xpath("@onclick").extract()
-		# 		if onclick:
-		# 			#mfgquery = re.compile('(?![Mm]fr[Ii]d=)[0-9]+(?=\")')
-		# 			mfgquery = re.compile('[Mm]fr[Ii]d=[0-9]+\"')
-		# 			mfgId = re.findall(mfgquery, onclick[0])
-		# 			if mfgId:
-		# 				mfgId = mfgId[0].replace("MfrId=","").replace("\"","")
-		# 				mfg['mfgID'] = mfgId.encode('utf-8')
-		# 				mfgs.append(mfg)
-
-
-		# #item['manufacturers'] = mfgs
-		# #return item
-		# yield item
+		#this spews manufacturers
+		mfgLinksList = [response.xpath('//ul[@class="filterItem"]/li/a'), response.xpath('//ul[@class="filterItem"]/span/li/a')]
+		for mfgLinks in mfgLinksList:
+			for link in mfgLinks:
+				l = MfgItemLoader(TigerDirectManufacturer(), response)
+				l.add_value('mfgName', link.xpath("text()").extract()[0])
+				l.add_value('itemType', 'manufacturer')
+				l.add_value('mfgID', link)
+				itemManufacturer = TigerDirectManufacturer(l.load_item())
+				yield itemManufacturer
 
 	def parse_items(self, response):
-		#filename = response.url.split("/")[-2]
-		#with open(filename, 'wb') as f:
+		l = ItemItemLoader(TigerdirectItem(), response)
 		item = TigerdirectItem()
-		item['itemType'] = "product"
-		item['crawlTimestamp'] = time.time()
-		item['source'] = 'www.tigerdirect.ca'
-		#item ['_prodName'] = response.xpath('//div[@class="prodName"]').extract().strip()
+		l.add_value('itemType', 'product')
+		l.add_value('crawlTimestamp', unicode(time.time()))
+		l.add_value('source', 'www.tigerdirect.ca')
+		l.add_xpath('productName', ('//div[@class="prodName"]/h1/text()'))
+		l.add_value('itemNo', response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[0].extract())
+		l.add_value('modelNo', response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[1].extract())
+		l.add_value('tdCategoryID', response.url)
+		itemItem = TigerdirectItem(l.load_item())
+		yield itemItem
 
-		item['productName'] = response.xpath('//div[@class="prodName"]/h1/text()').extract()
+		l = PriceItemLoader(PriceItem(), response)
+		l.add_value('itemType', 'price')
 
-		strItemNumber = response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[0].extract()
-		strItemNumber = strItemNumber.strip().replace("\n","").replace("|","").replace("\r","").replace("\u00a0","").strip()
-		item['itemNo'] = strItemNumber
-
-		strModelNumber = response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[1].extract()
-		strModelNumber = strModelNumber.strip().replace("\n","").replace("|","").replace("\r","").replace("\u00a0","").strip()
-		item['modelNo'] = strModelNumber
-
-		#item.modelNo = response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[1].extract().strip()
-		pricebox = response.xpath('//dl[@class="priceBox"]')
-		item['_td_priceBox'] = pricebox.extract() #just saving for later re-parsing
-
-		#this is no good but getting close:
-		#dds = pricebox.xpath('//dt/following::dd')
-		#i need the dd of the dt class priceSale
-
-		#pricebox.xpath('//dt[contains(@class,"priceSale")]').extract()
-		#this gets me the dt right before the dd that I need
-		#pricebox.xpath('//dd/following::dt') #gets the dd after a dt
-		#this is the exact oposite of what I want: pricebox.xpath('//dd/preceding::dt[@class="priceSale priceToday"]').extract()
-		#pricebox.xpath('"//dt[@class="priceSale priceToday"]::following/dd')
-		#i think this one is right: pricebox.xpath('//dt/following::dd[@class="salePrice priceToday"]').extract()
-		#salePriceNode = pricebox.xpath('//dt/following::dd[@class="salePrice priceToday"]')
-		#node0 = salePriceNode[0]
-		#price: ''.join(response.xpath('//dd[contains(@class, "salePrice")]/descendant::*/text()').extract())
-		
-		#create a new pricing object:
 		pricing = PriceItem()
-		pricing['itemType'] = 'price'
+		#pricing['itemType'] = 'price'
+		l.add_xpath('salePrice', ('//dd[contains(@class, "salePrice")]/descendant::*/text()'))
+
 		salePrice = ''.join(response.xpath('//dd[contains(@class, "salePrice")]/descendant::*/text()').extract())
 		salePrice = salePrice.strip().replace(" ","").replace("$","")
 		
 		#item['_td_salePrice'] = salePrice
 		pricing['salePrice'] = salePrice
 
+		l.add_xpath('rebateAmount', ('//dd[contains(@class, "priceRebate")]/text()'))
+		
 		priceRebateArray = response.xpath('//dd[contains(@class, "priceRebate")]/text()').extract()
 		if priceRebateArray:
 			priceRebate = priceRebateArray[0]
@@ -166,6 +112,9 @@ class TigerDirectSpider(CrawlSpider):
 		#and add the pricing to the pricings object
 		item['pricings'] = pricing
 
+		priceItem = PriceItem(l.load_item())
+		yield priceItem
+
 		#specs:
 		#from the spec table
 		#th = key : response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()').extract()
@@ -185,7 +134,7 @@ class TigerDirectSpider(CrawlSpider):
 			specifications['itemType'] = 'specifications'
 			item['specifications'] = specifications
 		item['detailsLink'] = response.url
-		return item
+		#return item
 		#f.write(response.body)
 		#products = response.xpath('//div[@class="product"]')
 		#products.xpath('//p[@class="itemModel"]/text()').extract()

@@ -12,11 +12,11 @@ BOT_NAME = 'tigerdirect'
 
 SPIDER_MODULES = ['tigerdirect.spiders']
 NEWSPIDER_MODULE = 'tigerdirect.spiders'
-DOWNLOAD_DELAY = 0.25
+DOWNLOAD_DELAY = 0.32
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'tigerdirect (+http://www.yourdomain.com)'
 
-# ITEM_PIPELINES = { 
-# 	'tigerdirect.pipelines.CategoryPipeline': 600,
+ITEM_PIPELINES = { 
+ 	'tigerdirect.pipelines.manufacturerPipeline': 500,
 # 	'tigerdirect.pipelines.WriteMongo': 900,
-# 	}
+ 	}

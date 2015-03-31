@@ -25,7 +25,7 @@ class MfgItemLoader(ItemLoader):
 	default_output_processor = Join()
 
 	mfgName_in = MapCompose(parsemfgName)
-	mfgName_out = Identity()
+	mfgName_out = Join()
 
 	mfgID_in = MapCompose(linkToMfgID)
 	mfgID_out = Join()
