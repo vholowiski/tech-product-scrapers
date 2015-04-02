@@ -78,6 +78,22 @@ class TigerDirectSpider(CrawlSpider):
 		l.add_value('modelNo', response.xpath('//div[@class="prodName"]/span[@class="sku"]/text()')[1].extract())
 		l.add_value('tdCategoryID', response.url)
 		l.add_value('link', response.url)
+
+		#are there specifications?
+		#specifications = response.xpath('//div[@id="DetailedSpecs"]')
+		if response.xpath('//div[@id="DetailedSpecs"]'):
+			specKeys = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()')
+			if specKeys:
+				i = 0
+				for key in specKeys:
+					value = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')[i]
+					s1={}
+					s1[key.extract()]=value.extract()
+					#s1['specName'] = key.extract()
+					#s1['specValue'] = value.extract()
+					l.add_value('specifications', s1)
+					i = i + 1
+
 		itemItem = TigerdirectItem(l.load_item())
 		yield itemItem
 
@@ -90,13 +106,6 @@ class TigerDirectSpider(CrawlSpider):
 		pricing = PriceItem()
 		
 		l.add_xpath('salePrice', ('//dd[contains(@class, "salePrice")]/descendant::*/text()'))
-
-		#salePrice = ''.join(response.xpath('//dd[contains(@class, "salePrice")]/descendant::*/text()').extract())
-		#salePrice = salePrice.strip().replace(" ","").replace("$","")
-		
-		#item['_td_salePrice'] = salePrice
-		#pricing['salePrice'] = salePrice
-
 		l.add_xpath('rebateAmount', ('//dd[contains(@class, "priceRebate")]/text()'))
 		
 		#priceRebateArray = response.xpath('//dd[contains(@class, "priceRebate")]/text()').extract()
@@ -106,37 +115,19 @@ class TigerDirectSpider(CrawlSpider):
 		#	#item['_td_priceRebate'] = priceRebate
 		#	pricing['rebateAmount'] = priceRebate
 
-		#if response.xpath('//dd[contains(@class, "priceFinal")]'):
 		l.add_value('finalPrice', response.xpath('//dd[contains(@class, "priceFinal")]').extract())
-		#ugh. Messy. Dunno if this will work...
-		isThereaFinalPrice = response.xpath('//dd[contains(@class, "priceFinal")]')
-		if isThereaFinalPrice:
-			dollar = ""
-			decimal = ""
-			price = ""
-			priceFinalDollarArray = response.xpath('//dd[contains(@class, "priceFinal")]/span/text()')
-			if priceFinalDollarArray:
-				dollar = priceFinalDollarArray[0].extract()
-			
-			priceFinalDecimal = response.xpath('//dd[contains(@class, "priceFinal")]/span/descendant::*/text()').extract()
-			if priceFinalDecimal:
-				decimal = ''.join(priceFinalDecimal).strip().replace("\n","").replace("\r","").replace(" ","").replace("$","").replace("*","")
-			
-			price = ''.join((dollar,decimal))
-			pricing['finalPrice'] = price
-			#item['_td_priceFinal'] = price
-		pricing['purchaseURL'] = response.url
-		pricing['crawlTimestamp'] = time.time()
-		pricing['source'] = 'www.tigerdirect.ca'
-		#and add the pricing to the pricings object
-		item['pricings'] = pricing
+		l.add_value('purchaseURL', response.url)
+		#l.add_value('crawlTimestamp', time.time())
+		l.add_value('source', 'wwww.tigerdirect.ca')
 
 		#TODO get price for 'add to car to see price'
 		#http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?CatId=5739&EdpNo=9641093
 		#its in the javascript!
 		
 		priceItem = PriceItem(l.load_item())
+		priceItem['crawlTimestamp']=time.time()
 		yield priceItem
+
 
 		#specs:
 		#from the spec table

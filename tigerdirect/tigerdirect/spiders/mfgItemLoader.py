@@ -6,6 +6,10 @@ import re
 import string
 
 class MfgItemLoader(ItemLoader):
+	def cleanString(string):
+		cleanQuery=re.compile('[A-Za-z0-9 .",\'!-]')
+		string=''.join(re.findall(cleanQuery, string))
+		return string
 	def linkToMfgID(link):
 		onclick = link.xpath("@onclick").extract()
 		if onclick:
@@ -24,7 +28,7 @@ class MfgItemLoader(ItemLoader):
 	default_input_processor = Identity()
 	default_output_processor = Join()
 
-	mfgName_in = MapCompose(parsemfgName)
+	mfgName_in = MapCompose(parsemfgName, cleanString)
 	mfgName_out = Join()
 
 	mfgID_in = MapCompose(linkToMfgID)
