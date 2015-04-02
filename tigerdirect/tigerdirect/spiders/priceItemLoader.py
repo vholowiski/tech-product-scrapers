@@ -12,6 +12,25 @@ class PriceItemLoader(ItemLoader):
 	def parseRebateAmount(rebateIn):
 		priceRebate = rebateIn.strip().replace("\n","").replace("\r","").replace(" ","").replace("$","")
 		return priceRebate
+<<<<<<< HEAD
+=======
+	def parseFinalPrice(priceIn):
+		#print priceIn
+		query = re.compile('[0-9\.]')
+		price = re.findall(query, priceIn)
+		if price:
+			finalPrice = ''.join(price)
+		#print priceIn
+		#dollarQuery = re.compile('(?:[Ss]ale[Pp]rice.+?)([0-9]+)') #this regex should get just the numeric dollar amount
+		#dollar = re.findall(dollarQuery, priceIn)[0]
+		
+		#decimalQuery = re.compile('(?:[pP]rice[dD]ecimal[mM]ark.*)[0-9]+')
+		#decimal = re.findall(decimalQuery, priceIn)[0]
+		#secondDecimalQuery = re.compile('[0-9]+')
+		#decimal = re.findall(secondDecimalQuery, priceIn)[0]
+		#finalPrice = '.'.join((dollar,decimal))
+		return finalPrice
+>>>>>>> 6a8e548842325377e54264bd4d1d56a33d1c9649
 
 	default_input_processor = Identity()
 	default_output_processor = Join()
@@ -19,4 +38,31 @@ class PriceItemLoader(ItemLoader):
 	salePrice_in = MapCompose(parseSalePrice)
 	salePrice_out = Join()
 
+<<<<<<< HEAD
 	
+=======
+	finalPrice_in = MapCompose(parseFinalPrice)
+	finalPrice_out = Join()
+
+
+
+
+
+
+
+	# isThereaFinalPrice = response.xpath('//dd[contains(@class, "priceFinal")]')
+	# 	if isThereaFinalPrice:
+	# 		dollar = ""
+	# 		decimal = ""
+	# 		price = ""
+	# 		priceFinalDollarArray = response.xpath('//dd[contains(@class, "priceFinal")]/span/text()')
+	# 		if priceFinalDollarArray:
+	# 			dollar = priceFinalDollarArray[0].extract()
+			
+	# 		priceFinalDecimal = response.xpath('//dd[contains(@class, "priceFinal")]/span/descendant::*/text()').extract()
+	# 		if priceFinalDecimal:
+	# 			decimal = ''.join(priceFinalDecimal).strip().replace("\n","").replace("\r","").replace(" ","").replace("$","").replace("*","")
+			
+	# 		price = ''.join((dollar,decimal))
+	# 		pricing['finalPrice'] = price
+>>>>>>> 6a8e548842325377e54264bd4d1d56a33d1c9649
