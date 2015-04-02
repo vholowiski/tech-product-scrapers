@@ -12,9 +12,11 @@ class PriceItemLoader(ItemLoader):
 	def parseRebateAmount(rebateIn):
 		priceRebate = rebateIn.strip().replace("\n","").replace("\r","").replace(" ","").replace("$","")
 		return priceRebate
-		
+
 	default_input_processor = Identity()
 	default_output_processor = Join()
 
 	salePrice_in = MapCompose(parseSalePrice)
 	salePrice_out = Join()
+
+	
