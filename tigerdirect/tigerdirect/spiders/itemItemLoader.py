@@ -29,25 +29,25 @@ class ItemItemLoader(ItemLoader):
 		categoryID = categoryIDtxt.replace("CatId=", "")
 		return categoryID
 	def parseSpecification(specificationKV):
-		def cleanKey(key):
-			cleanQuery=re.compile('[A-Za-z0-9 .-]')
-			string=''.join(re.findall(cleanQuery, key))
-			return string
-		def cleanValue(value):
-			cleanQuery=re.compile('[A-Za-z0-9 .",\'!-]')
-			string=''.join(re.findall(cleanQuery, value))
-			return value
-		def cleanKV(specificationKV):
-			returnKV={}
-			for key, value in specificationKV.items():
-				returnKV[cleanKey(key)]=cleanValue(value)
-			return specificationKV
-		def isSpecial(specificationKV):
-			isspecial=false
-			for key, value in specificationKV.items():
-				if key=="Capactity":
-					isspecial=true
-			return isspecial
+		# def cleanKey(key):
+		# 	cleanQuery=re.compile('[A-Za-z0-9 .-]')
+		# 	string=''.join(re.findall(cleanQuery, key))
+		# 	return string
+		# def cleanValue(value):
+		# 	cleanQuery=re.compile('[A-Za-z0-9 .",\'!-]')
+		# 	string=''.join(re.findall(cleanQuery, value))
+		# 	return value
+		# def cleanKV(specificationKV):
+		# 	returnKV={}
+		# 	for key, value in specificationKV.items():
+		# 		returnKV[cleanKey(key)]=cleanValue(value)
+		# 	return specificationKV
+		# def isSpecial(specificationKV):
+		# 	isspecial=false
+		# 	for key, value in specificationKV.items():
+		# 		if key=="Capactity":
+		# 			isspecial=true
+		# 	return isspecial
 
 		returnVal = cleanKV(specificationKV)
 		if isSpecial(returnVal):
