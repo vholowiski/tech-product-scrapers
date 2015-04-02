@@ -12,8 +12,6 @@ class PriceItemLoader(ItemLoader):
 	def parseRebateAmount(rebateIn):
 		priceRebate = rebateIn.strip().replace("\n","").replace("\r","").replace(" ","").replace("$","")
 		return priceRebate
-<<<<<<< HEAD
-=======
 	def parseFinalPrice(priceIn):
 		#print priceIn
 		query = re.compile('[0-9\.]')
@@ -30,17 +28,12 @@ class PriceItemLoader(ItemLoader):
 		#decimal = re.findall(secondDecimalQuery, priceIn)[0]
 		#finalPrice = '.'.join((dollar,decimal))
 		return finalPrice
->>>>>>> 6a8e548842325377e54264bd4d1d56a33d1c9649
-
 	default_input_processor = Identity()
 	default_output_processor = Join()
 
 	salePrice_in = MapCompose(parseSalePrice)
 	salePrice_out = Join()
 
-<<<<<<< HEAD
-	
-=======
 	finalPrice_in = MapCompose(parseFinalPrice)
 	finalPrice_out = Join()
 
