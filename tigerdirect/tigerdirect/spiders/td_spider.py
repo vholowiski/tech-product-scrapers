@@ -10,24 +10,28 @@ from tigerdirect.items import TigerDirectCategory
 from tigerdirect.items import SpecificationsItem
 from tigerdirect.items import PriceItem
 from tigerdirect.items import TigerDirectManufacturer
+from tigerdirect.items import ItemSpecifications
 
 from tigerdirect.spiders.categoryItemLoader import CategoryItemLoader
 from tigerdirect.spiders.mfgItemLoader import MfgItemLoader
 from tigerdirect.spiders.itemItemLoader import ItemItemLoader
 from tigerdirect.spiders.priceItemLoader import PriceItemLoader
+from tigerdirect.spiders.specificationItemLoader import SpecificationItemLoader
 
-class TigerDirectSpider(CrawlSpider): 
+#class TigerDirectSpider(CrawlSpider): 
+class TigerDirectSpider(scrapy.Spider):
 	name = "tigerdirect"
 	allowed_domains = ["www.tigerdirect.ca"]
-	start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=8198962&Sku=H450-8419", "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=5774231&CatId=234","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
+	#start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=8198962&Sku=H450-8419", "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=5774231&CatId=234","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
 	#start_urls = ["http://www.tigerdirect.ca/sectors/category/site-directory.asp",	"http://www.tigerdirect.ca/applications/Refurb/refurb_tlc.asp",	"http://www.tigerdirect.ca/applications/openbox/openbox_tlc.asp",	"http://www.tigerdirect.ca/applications/campaigns/deals.asp?campaignid=2835"]
+	start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=1310560&CatId=139"]
 	#one page, for rules: http://www.tigerdirect.ca/applications/category/category_slc.asp?CatId=6845
 	#and item details: http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9561721&CatId=6845
-	rules = (
-		Rule(LinkExtractor(allow=('_.lc\.asp\?CatId=[0-9]+$', ),deny=('SearchTools')), callback='parse_categories', follow= True),
-		Rule(LinkExtractor(allow=('category\/super.asp?Id=', ))),
-		Rule(LinkExtractor(allow=('item-details\.asp\?EdpNo=[0-9]*\&[cC]at[iI]d=[0-9]+$', ),deny=('searchtools')), callback='parse_items', follow= True),
-	)
+	#rules = (
+	#	Rule(LinkExtractor(allow=('_.lc\.asp\?CatId=[0-9]+$', ),deny=('SearchTools')), callback='parse_categories', follow= True),
+	#	Rule(LinkExtractor(allow=('category\/super.asp?Id=', ))),
+	#	Rule(LinkExtractor(allow=('item-details\.asp\?EdpNo=[0-9]*\&[cC]at[iI]d=[0-9]+$', ),deny=('searchtools')), callback='parse_items', follow= True),
+	#)
 
 	def parse_categories(self, response):
 		l = CategoryItemLoader(TigerDirectCategory(), response)
@@ -52,7 +56,8 @@ class TigerDirectSpider(CrawlSpider):
 				itemManufacturer = TigerDirectManufacturer(l.load_item())
 				yield itemManufacturer
 
-	def parse_items(self, response):
+	def parse(self, response):
+	#def parse_items(self, response):
 		print "****"
 		print "****"
 		print "****"
@@ -81,18 +86,18 @@ class TigerDirectSpider(CrawlSpider):
 
 		#are there specifications?
 		#specifications = response.xpath('//div[@id="DetailedSpecs"]')
-		if response.xpath('//div[@id="DetailedSpecs"]'):
-			specKeys = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()')
-			if specKeys:
-				i = 0
-				for key in specKeys:
-					value = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')[i]
-					s1={}
-					s1[key.extract()]=value.extract()
-					#s1['specName'] = key.extract()
-					#s1['specValue'] = value.extract()
-					l.add_value('specifications', s1)
-					i = i + 1
+		# if response.xpath('//div[@id="DetailedSpecs"]'):
+		# 	specKeys = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()')
+		# 	if specKeys:
+		# 		i = 0
+		# 		for key in specKeys:
+		# 			value = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')[i]
+		# 			s1={}
+		# 			s1[key.extract()]=value.extract()
+		# 			#s1['specName'] = key.extract()
+		# 			#s1['specValue'] = value.extract()
+		# 			l.add_value('specifications', s1)
+		# 			i = i + 1
 
 		itemItem = TigerdirectItem(l.load_item())
 		yield itemItem
@@ -128,6 +133,81 @@ class TigerDirectSpider(CrawlSpider):
 		priceItem['crawlTimestamp']=time.time()
 		yield priceItem
 
+		#specifications?
+		hasSpecifications = response.xpath('//span[contains(text(), "pecifications")]')
+		if hasSpecifications:
+			#l = SpecificationItemLoader(ItemSpecifications(), response)
+			
+			#get the keys (specificatin types) in the table
+			specKeys = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()')
+			#first recognize canonical specs
+			i = 0
+			for key in specKeys:
+				value = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')[i]
+				key = key.extract()
+				value = value.extract()
+				#print key
+				#print value
+				#now we have key/value
+				cleanKeyQuery = re.compile('[A-Za-z0-9 .-]')
+				cleanValueQuery = re.compile('[A-Za-z0-9 .",\'!-]')
+				cleanKey = ''.join(re.findall(cleanKeyQuery, key))
+				cleanValue = ''.join(re.findall(cleanValueQuery, value))
+				#print cleanKey
+				#print cleanValue
+				
+				#now, look for canonical
+				capacityQuery = re.compile('[Cc]apacity$')
+				if re.findall(capacityQuery, cleanKey):
+					print cleanKey
+					print cleanValue
+					def capacityStrToBytes(strCapacity):
+						capcityNumberQuery = re.compile('[0-9]')
+						capacityMeasureQuery = re.compile('[TtGgMmKk][Bb]')
+						capacityNumber = int(''.join(re.findall(capcityNumberQuery, strCapacity)))
+						capacityMeasure = ''.join(re.findall(capacityMeasureQuery, strCapacity))
+						#now, is it kb, gb or tb?
+						bytes = 0
+						multiplier = 0
+						#TODO : recognize the difference betweent B and b. maybe?
+						tbQuery = re.compile('[Tt][Bb]')
+						if re.findall(tbQuery, capacityMeasure):
+							#is TB 1000000000000 bytes
+							multiplier = 1000000000000
+						gbQuery = re.compile('[Gg][Bb]')
+						if re.findall(gbQuery, capacityMeasure):
+							#is TB 1000000000000 bytes
+							multiplier = 1000000000
+						mbQuery = re.compile('[Mm][Bb]')
+						if re.findall(mbQuery, capacityMeasure):
+							#is TB 1000000000000 bytes
+							multiplier = 1000
+						kbQuery = re.compile('[Kk][Bb]')
+						if re.findall(kbQuery, capacityMeasure):
+							#is TB 1000000000000 bytes
+							multiplier = 1000
+
+						bytes = capacityNumber* multiplier
+						return bytes
+					capacityBytes = capacityStrToBytes(cleanValue)
+					print "Capacity in Bytes:"
+					print capacityBytes
+
+				# 	#has Capacity
+				# 	print "****"
+				# 	print "****"
+				# 	print "****"
+				# 	print "****"
+				# 	print "****"
+				# 	print "****"
+				# 	print "****"
+				# 	print cleankey
+				# 	print cleanValue
+
+				i = i + 1
+
+			#then create the item
+			#then loop through the rest, and create them as non canonical
 
 		#specs:
 		#from the spec table
