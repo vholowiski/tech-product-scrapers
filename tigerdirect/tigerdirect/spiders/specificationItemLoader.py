@@ -40,7 +40,14 @@ class SpecificationItemLoader(ItemLoader):
 		bytes = capacityNumber* multiplier
 		bytes = str(bytes)
 		return bytes
-	
+	def parseDriveMedium(string):
+		ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
+		medium = re.findall(ssdQuery, string)
+		mediumType = 'spinning'
+		if medium:
+			mediumType = 'ssd'
+		return mediumType
+
 	def cleanKey(key):
 			cleanQuery=re.compile('[A-Za-z0-9 .-]')
 			string=''.join(re.findall(cleanQuery, key))
@@ -59,9 +66,12 @@ class SpecificationItemLoader(ItemLoader):
 	default_input_processor = Identity()
 	default_output_processor = Join()
 
-	bytesCapacity_in = MapCompose(capacityStrToBytes)
-	bytesCapacity_out =TakeFirst()
+	driveBytesCapacity_in = MapCompose(capacityStrToBytes)
+	driveBytesCapacity_out =TakeFirst()
 
 	driveType_in = MapCompose(lowerString)
 	driveType_out = TakeFirst()
+
+	driveMedium = MapCompose(parseDriveMedium)
+	driveMedium = TakeFirst()
 

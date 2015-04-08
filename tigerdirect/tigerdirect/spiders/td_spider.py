@@ -18,47 +18,56 @@ from tigerdirect.spiders.itemItemLoader import ItemItemLoader
 from tigerdirect.spiders.priceItemLoader import PriceItemLoader
 from tigerdirect.spiders.specificationItemLoader import SpecificationItemLoader
 
-#class TigerDirectSpider(CrawlSpider): 
-class TigerDirectSpider(scrapy.Spider):
+class TigerDirectSpider(CrawlSpider): 
+#class TigerDirectSpider(scrapy.Spider):
 	name = "tigerdirect"
 	allowed_domains = ["www.tigerdirect.ca"]
-	#start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=8198962&Sku=H450-8419", "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=5774231&CatId=234","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
+	start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=8198962&Sku=H450-8419", "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=5774231&CatId=234","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
 	#start_urls = ["http://www.tigerdirect.ca/sectors/category/site-directory.asp",	"http://www.tigerdirect.ca/applications/Refurb/refurb_tlc.asp",	"http://www.tigerdirect.ca/applications/openbox/openbox_tlc.asp",	"http://www.tigerdirect.ca/applications/campaigns/deals.asp?campaignid=2835"]
-	start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=1310560&CatId=139"]
+	#start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=1310560&CatId=139"]
 	#one page, for rules: http://www.tigerdirect.ca/applications/category/category_slc.asp?CatId=6845
 	#and item details: http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9561721&CatId=6845
-	#rules = (
-	#	Rule(LinkExtractor(allow=('_.lc\.asp\?CatId=[0-9]+$', ),deny=('SearchTools')), callback='parse_categories', follow= True),
-	#	Rule(LinkExtractor(allow=('category\/super.asp?Id=', ))),
-	#	Rule(LinkExtractor(allow=('item-details\.asp\?EdpNo=[0-9]*\&[cC]at[iI]d=[0-9]+$', ),deny=('searchtools')), callback='parse_items', follow= True),
-	#)
+	rules = (
+		Rule(LinkExtractor(allow=('_.lc\.asp\?CatId=[0-9]+$', ),deny=('SearchTools')), callback='parse_categories', follow= True),
+		Rule(LinkExtractor(allow=('category\/super.asp?Id=', ))),
+		Rule(LinkExtractor(allow=('item-details\.asp\?EdpNo=[0-9]*\&[cC]at[iI]d=[0-9]+$', ),deny=('searchtools')), callback='parse_items', follow= True),
+	)
 
 	def parse_categories(self, response):
-		l = CategoryItemLoader(TigerDirectCategory(), response)
-		l.add_value('itemType', 'category')
-		l.add_value('categoryName', response.xpath('//a[@class="crumbCat"]/text()').extract())
-		l.add_value('tdCategoryID', response.url)
-		#manufacturers
-		for link in response.xpath('//ul[@class="filterItem"]/li/a'):
-			l.add_value('manufacturers', link)
-		l.add_value('uri', response.url)
-		itemProcessedCatetory = TigerDirectCategory(l.load_item())
-		yield itemProcessedCatetory
+		#print("111111111111111111111")
+		if response.xpath('//a[@class="crumbCat"]/text()'):
+			l = CategoryItemLoader(TigerDirectCategory(), response)
+			l.add_value('itemType', 'category')
+			l.add_value('categoryName', response.xpath('//a[@class="crumbCat"]/text()').extract())
+			l.add_value('tdCategoryID', response.url)
+			#manufacturers
+			#print("222222222222222222")
+			for link in response.xpath('//ul[@class="filterItem"]/li/a'):
+				print("333333333333333333")
+				l.add_value('manufacturers', link)
+			l.add_value('uri', response.url)
+			itemProcessedCatetory = TigerDirectCategory(l.load_item())
+			yield itemProcessedCatetory
 
-		#this spews manufacturers
-		mfgLinksList = [response.xpath('//ul[@class="filterItem"]/li/a'), response.xpath('//ul[@class="filterItem"]/span/li/a')]
-		for mfgLinks in mfgLinksList:
-			for link in mfgLinks:
-				l = MfgItemLoader(TigerDirectManufacturer(), response)
-				l.add_value('mfgName', link.xpath("text()").extract()[0])
-				l.add_value('itemType', 'manufacturer')
-				l.add_value('mfgID', link)
-				itemManufacturer = TigerDirectManufacturer(l.load_item())
-				yield itemManufacturer
+			#this spews manufacturers
+			mfgLinksList = [response.xpath('//ul[@class="filterItem"]/li/a'), response.xpath('//ul[@class="filterItem"]/span/li/a')]
+			#print("4444444444444444")
+			for mfgLinks in mfgLinksList:
+				#print("55555555555555555")
+				for link in mfgLinks:
+					print("666666666666666666")
+					l = MfgItemLoader(TigerDirectManufacturer(), response)
+					l.add_value('mfgName', link.xpath("text()").extract()[0])
+					l.add_value('itemType', 'manufacturer')
+					l.add_value('mfgID', link)
+					itemManufacturer = TigerDirectManufacturer(l.load_item())
+					#print("7777777777777777")
+					yield itemManufacturer
+					#print("8888888888888888")
 
-	def parse(self, response):
-	#def parse_items(self, response):
-		
+	#def parse(self, response):
+	def parse_items(self, response):
+		#print("**********************")
 		l = ItemItemLoader(TigerdirectItem(), response)
 		item = TigerdirectItem()
 		l.add_value('itemType', 'product')
@@ -139,44 +148,27 @@ class TigerDirectSpider(scrapy.Spider):
 				cleanValue = ''.join(re.findall(cleanValueQuery, value))
 			
 				#now, look for canonical
+				#capacity, in bytes
 				capacityQuery = re.compile('[Cc]apacity$')
 				if re.findall(capacityQuery, cleanKey):
-					l.add_value('bytesCapacity', cleanValue)
+					l.add_value('driveBytesCapacity', cleanValue)
+				#internal, external?
 				driveTypeQuery = re.compile('[Dd]rive [Tt]ype')
 				if re.findall(driveTypeQuery, cleanKey):
 					l.add_value('driveType', cleanValue)
+				#ssd or spinning?
+				prodName = response.xpath('//div[@class="prodName"]/h1/text()').extract()
+				#TODO: Instead of searching for 'ssd' i shoud just be checking if this is a hard drive
+					#and then setting it to ssd or spinning
+					#but i need to build a function for that
+					#for now, no ssd means its spinning
+				ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
+				if re.findall(ssdQuery[0], prodName):
+					l.add_xpath('driveMedium', ('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])'))
+
 
 				i = i + 1
 			itemSpecifications = SpecificationsItem(l.load_item())
 			#yield itemSpecifications
 			#then create the item
-			#then loop through the rest, and create them as non canonical
-
-		#specs:
-		#from the spec table
-		#th = key : response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()').extract()
-		#td = value : response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()').extract()  
-			
-		#temporarily commenting out. horribly broken
-
-		# specifications = []
-		# specKeys = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()')
-		# if specKeys:
-		# 	i = 0
-		# 	for key in specKeys:
-		# 		value = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')[i]
-		# 		s1 = SpecificationsItem(
-		# 			)
-		# 		s1['specName'] = key.extract()
-		# 		s1['specValue'] = value.extract()
-		# 		specifications.append(s1)
-		# 		i = i + 1
-		# 	specifications['itemType'] = 'specifications'
-		# 	item['specifications'] = specifications
-		# item['detailsLink'] = response.url
-		#return item
-		#f.write(response.body)
-		#products = response.xpath('//div[@class="product"]')
-		#products.xpath('//p[@class="itemModel"]/text()').extract()
-		#products.xpath('//h3[@class="itemName"]/a')
-		#products.xpath('//h3[@class="itemName"]/a/text()')
+			#then loop through the rest, and create them as non canonical	

@@ -8,7 +8,7 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #
 
-BOT_NAME = 'tigerdirect'
+BOT_NAME = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
 
 SPIDER_MODULES = ['tigerdirect.spiders']
 NEWSPIDER_MODULE = 'tigerdirect.spiders'
