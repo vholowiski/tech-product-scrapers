@@ -7,11 +7,6 @@
 
 import scrapy
 
-class SpecificationsItem(scrapy.Item):
-    specName = scrapy.Field()
-    specValue = scrapy.Field()
-    itemType = scrapy.Field() # specifications
-
 class TigerDirectCategory(scrapy.Item):
     itemType = scrapy.Field() #category
     categoryName = scrapy.Field()
@@ -60,9 +55,11 @@ class TigerdirectItem(scrapy.Item):
     #_td_priceRebate = scrapy.Field() #how much is the rebate? Probably a negative value
     #_td_priceFinal = scrapy.Field() #final price - sale minus rebate
 
-class ItemSpecifications(scrapy.Item):
+class SpecificationsItem(scrapy.Item):
     #Canonical stuff defined here. Other stuff will be added too
     #mostly this is here for consistency, and so I can have a seperate pipeline
     #because, at the end this is converted back to key/value pairs and merged in to TigerdirectItem['specifications']
     specType = scrapy.Field() #for example: 'harddrive', 'monitor' etc
     bytesCapacity=scrapy.Field() #the capacity, converted to bytes for consistency.
+    driveType=scrapy.Field()
+

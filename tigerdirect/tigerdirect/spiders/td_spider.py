@@ -10,7 +10,7 @@ from tigerdirect.items import TigerDirectCategory
 from tigerdirect.items import SpecificationsItem
 from tigerdirect.items import PriceItem
 from tigerdirect.items import TigerDirectManufacturer
-from tigerdirect.items import ItemSpecifications
+#from tigerdirect.items import ItemSpecifications
 
 from tigerdirect.spiders.categoryItemLoader import CategoryItemLoader
 from tigerdirect.spiders.mfgItemLoader import MfgItemLoader
@@ -58,20 +58,6 @@ class TigerDirectSpider(scrapy.Spider):
 
 	def parse(self, response):
 	#def parse_items(self, response):
-		print "****"
-		print "****"
-		print "****"
-		print "****"
-		print "****"
-		print "****"
-		print "item"
-		print "****"
-		print "****"
-		print "****"
-		print "****"
-		print "****"
-		print "****"
-		print "****"
 		
 		l = ItemItemLoader(TigerdirectItem(), response)
 		item = TigerdirectItem()
@@ -136,7 +122,7 @@ class TigerDirectSpider(scrapy.Spider):
 		#specifications?
 		hasSpecifications = response.xpath('//span[contains(text(), "pecifications")]')
 		if hasSpecifications:
-			#l = SpecificationItemLoader(ItemSpecifications(), response)
+			l = SpecificationItemLoader(SpecificationsItem(), response)
 			
 			#get the keys (specificatin types) in the table
 			specKeys = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()')
@@ -146,66 +132,23 @@ class TigerDirectSpider(scrapy.Spider):
 				value = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')[i]
 				key = key.extract()
 				value = value.extract()
-				#print key
-				#print value
-				#now we have key/value
+
 				cleanKeyQuery = re.compile('[A-Za-z0-9 .-]')
 				cleanValueQuery = re.compile('[A-Za-z0-9 .",\'!-]')
 				cleanKey = ''.join(re.findall(cleanKeyQuery, key))
 				cleanValue = ''.join(re.findall(cleanValueQuery, value))
-				#print cleanKey
-				#print cleanValue
-				
+			
 				#now, look for canonical
 				capacityQuery = re.compile('[Cc]apacity$')
 				if re.findall(capacityQuery, cleanKey):
-					print cleanKey
-					print cleanValue
-					def capacityStrToBytes(strCapacity):
-						capcityNumberQuery = re.compile('[0-9]')
-						capacityMeasureQuery = re.compile('[TtGgMmKk][Bb]')
-						capacityNumber = int(''.join(re.findall(capcityNumberQuery, strCapacity)))
-						capacityMeasure = ''.join(re.findall(capacityMeasureQuery, strCapacity))
-						#now, is it kb, gb or tb?
-						bytes = 0
-						multiplier = 0
-						#TODO : recognize the difference betweent B and b. maybe?
-						tbQuery = re.compile('[Tt][Bb]')
-						if re.findall(tbQuery, capacityMeasure):
-							#is TB 1000000000000 bytes
-							multiplier = 1000000000000
-						gbQuery = re.compile('[Gg][Bb]')
-						if re.findall(gbQuery, capacityMeasure):
-							#is TB 1000000000000 bytes
-							multiplier = 1000000000
-						mbQuery = re.compile('[Mm][Bb]')
-						if re.findall(mbQuery, capacityMeasure):
-							#is TB 1000000000000 bytes
-							multiplier = 1000
-						kbQuery = re.compile('[Kk][Bb]')
-						if re.findall(kbQuery, capacityMeasure):
-							#is TB 1000000000000 bytes
-							multiplier = 1000
-
-						bytes = capacityNumber* multiplier
-						return bytes
-					capacityBytes = capacityStrToBytes(cleanValue)
-					print "Capacity in Bytes:"
-					print capacityBytes
-
-				# 	#has Capacity
-				# 	print "****"
-				# 	print "****"
-				# 	print "****"
-				# 	print "****"
-				# 	print "****"
-				# 	print "****"
-				# 	print "****"
-				# 	print cleankey
-				# 	print cleanValue
+					l.add_value('bytesCapacity', cleanValue)
+				driveTypeQuery = re.compile('[Dd]rive [Tt]ype')
+				if re.findall(driveTypeQuery, cleanKey):
+					l.add_value('driveType', cleanValue)
 
 				i = i + 1
-
+			itemSpecifications = SpecificationsItem(l.load_item())
+			#yield itemSpecifications
 			#then create the item
 			#then loop through the rest, and create them as non canonical
 
