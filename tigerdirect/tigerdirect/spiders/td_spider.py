@@ -43,7 +43,7 @@ class TigerDirectSpider(CrawlSpider):
 			#manufacturers
 			#print("222222222222222222")
 			for link in response.xpath('//ul[@class="filterItem"]/li/a'):
-				print("333333333333333333")
+				#print("333333333333333333")
 				l.add_value('manufacturers', link)
 			l.add_value('uri', response.url)
 			itemProcessedCatetory = TigerDirectCategory(l.load_item())
@@ -55,7 +55,7 @@ class TigerDirectSpider(CrawlSpider):
 			for mfgLinks in mfgLinksList:
 				#print("55555555555555555")
 				for link in mfgLinks:
-					print("666666666666666666")
+					#print("666666666666666666")
 					l = MfgItemLoader(TigerDirectManufacturer(), response)
 					l.add_value('mfgName', link.xpath("text()").extract()[0])
 					l.add_value('itemType', 'manufacturer')
@@ -157,13 +157,14 @@ class TigerDirectSpider(CrawlSpider):
 				if re.findall(driveTypeQuery, cleanKey):
 					l.add_value('driveType', cleanValue)
 				#ssd or spinning?
-				prodName = response.xpath('//div[@class="prodName"]/h1/text()').extract()
+				prodName = response.xpath('//div[@class="prodName"]/h1/text()').extract()[0]
 				#TODO: Instead of searching for 'ssd' i shoud just be checking if this is a hard drive
 					#and then setting it to ssd or spinning
 					#but i need to build a function for that
 					#for now, no ssd means its spinning
 				ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
-				if re.findall(ssdQuery[0], prodName):
+				ssdQueryResult = re.findall(ssdQuery, prodName)
+				if ssdQueryResult:
 					l.add_xpath('driveMedium', ('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])'))
 
 

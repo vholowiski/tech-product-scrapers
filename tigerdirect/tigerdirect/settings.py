@@ -18,5 +18,10 @@ DOWNLOAD_DELAY = 0.32
 
 ITEM_PIPELINES = { 
  	'tigerdirect.pipelines.manufacturerPipeline': 500,
-# 	'tigerdirect.pipelines.WriteMongo': 900,
+ 	'tigerdirect.pipelines.WriteMongo': 900,
  	}
+
+MONGODB_SERVER = "localhost"
+MONGODB_PORT = 27017
+MONGODB_DB = "techProducts_development"
+MONGODB_COLLECTION = "stuff"
