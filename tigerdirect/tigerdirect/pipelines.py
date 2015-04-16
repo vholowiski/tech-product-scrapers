@@ -7,6 +7,8 @@
 #import json
 from scrapy.exceptions import DropItem
 import pymongo
+from pymongo import MongoClient
+
 from datetime import datetime
 #from pymongo import MongoClient
 import datetime
@@ -28,11 +30,13 @@ class manufacturerPipeline(object):
 
 class WriteMongo(object):
 	def __init__(self):
-		connection = pymongo.Connection(
-			settings['MONGODB_SERVER'],
-			settings['MONGODB_PORT']
-		)
-		self.db = connection[settings['MONGODB_DB']]
+		client = MongoClient(settings['MONGODB_SERVER'], settings['MONGODB_PORT'])
+
+		#connection = pymongo.Connection(
+		#	settings['MONGODB_SERVER'],
+		#	settings['MONGODB_PORT']
+		#)
+		self.db = client[settings['MONGODB_DB']]
 
 	def process_item(self, item, spider):
 		if item:
