@@ -12,7 +12,7 @@ BOT_NAME = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.h
 
 SPIDER_MODULES = ['tigerdirect.spiders']
 NEWSPIDER_MODULE = 'tigerdirect.spiders'
-DOWNLOAD_DELAY = 0.32
+DOWNLOAD_DELAY = 0.82
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'tigerdirect (+http://www.yourdomain.com)'
 
