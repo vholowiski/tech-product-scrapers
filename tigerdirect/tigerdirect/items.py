@@ -59,8 +59,11 @@ class SpecificationsItem(scrapy.Item):
     #Canonical stuff defined here. Other stuff will be added too
     #mostly this is here for consistency, and so I can have a seperate pipeline
     #because, at the end this is converted back to key/value pairs and merged in to TigerdirectItem['specifications']
+    itemID = scrapy.Field()
+    itemType = scrapy.Field()
     specType = scrapy.Field() #for example: 'harddrive', 'monitor' etc
     driveBytesCapacity=scrapy.Field() #the capacity, converted to bytes for consistency.
     driveType=scrapy.Field() #internal, external etc
     driveMedium=scrapy.Field() #ssd or spinning?
+    genericSpecs = scrapy.Field()
 

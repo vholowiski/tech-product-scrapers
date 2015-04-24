@@ -132,12 +132,16 @@ class TigerDirectSpider(CrawlSpider):
 		hasSpecifications = response.xpath('//span[contains(text(), "pecifications")]')
 		if hasSpecifications:
 			l = SpecificationItemLoader(SpecificationsItem(), response)
-			
+			l.add_value('itemID', itemItem['itemNo'])
+			l.add_value('itemType', 'specifications')
 			#get the keys (specificatin types) in the table
 			specKeys = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()')
 			#first recognize canonical specs
 			i = 0
+			genericSpecs = [] #set up an empty array for specs not canonical
 			for key in specKeys:
+				canonicalKeyFound = False
+				
 				value = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')[i]
 				key = key.extract()
 				value = value.extract()
@@ -152,10 +156,12 @@ class TigerDirectSpider(CrawlSpider):
 				capacityQuery = re.compile('[Cc]apacity$')
 				if re.findall(capacityQuery, cleanKey):
 					l.add_value('driveBytesCapacity', cleanValue)
+					canonicalKeyFound = True
 				#internal, external?
 				driveTypeQuery = re.compile('[Dd]rive [Tt]ype')
 				if re.findall(driveTypeQuery, cleanKey):
 					l.add_value('driveType', cleanValue)
+					canonicalKeyFound = True
 				#ssd or spinning?
 				prodName = response.xpath('//div[@class="prodName"]/h1/text()').extract()[0]
 				#TODO: Instead of searching for 'ssd' i shoud just be checking if this is a hard drive
@@ -166,10 +172,15 @@ class TigerDirectSpider(CrawlSpider):
 				ssdQueryResult = re.findall(ssdQuery, prodName)
 				if ssdQueryResult:
 					l.add_xpath('driveMedium', ('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])'))
-
+					canonicalKeyFound = True
 
 				i = i + 1
+				if not canonicalKeyFound:
+					addSpec = {cleanKey: cleanValue}
+					genericSpecs +=[addSpec]
 			itemSpecifications = SpecificationsItem(l.load_item())
+			itemSpecifications['genericSpecs'] = genericSpecs
+			yield itemSpecifications
 			#yield itemSpecifications
 			#then create the item
 			#then loop through the rest, and create them as non canonical	
