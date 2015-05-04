@@ -1,0 +1,4 @@
+Example queries
+
+Simple - find everything that has a category
+db.td_product.find( {tdCategoryID: {$exists: true} } )

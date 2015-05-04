@@ -42,6 +42,7 @@ class WriteMongo(object):
 		if item:
 
 			#if it's a manufacturer, save to mongo, or update
+			#if (item['itemType'] == "manufacturer") or (item['itemType'] == 'category') or (item['itemType'] == 'product') or (item['itemType'] == 'specifications'):
 			if (item['itemType'] == "manufacturer") or (item['itemType'] == 'category') or (item['itemType'] == 'product'):
 				seenAt = datetime.datetime.utcnow()
 				#convert scrapy item to dict
@@ -53,8 +54,8 @@ class WriteMongo(object):
 
 				#select the collection
 				colname = "td_" + item['itemType']
-				print item['itemType']
-				print colname
+				#print item['itemType']
+				#print colname
 				collection = self.db[colname]
 				
 				#check if the mfg exists
@@ -92,6 +93,25 @@ class WriteMongo(object):
 					else:
 						result = collection.insert(mfg)
 						print "Added new item"
+				# if item['itemType'] == 'specifications':
+				# 	colname = "td_product" #need to change the collection from thedefault, which would be td_specifications
+				# 	print "selected column:"
+				# 	print colname
+
+				# 	#this is different than others. we are finding the product and adding this as a sub-item of it
+				# 	tdItemNo = item['itemID']
+				# 	foundItem = collection.find_one( {'itemNO': tdItemNo} )
+				# 	if foundItem:
+				# 		collection = self.db[colname]
+
+				# 		foundItem['specifications'] = item
+				# 		foundItem['lastSeen'] = seenAt
+				# 		collection.save(foundItem)
+				# 		print "Updated specifications, inside of item."
+				# 	else:
+				# 		print "Uh oh. Didn't find the item, associated with this spec. This sholdn't happen!"
+				# 		print tdItemNo
+				# 		print item
 
 			if item['itemType'] == 'price':
 				price = dict(item)
@@ -106,7 +126,57 @@ class WriteMongo(object):
 
 			#if it's a item, save or update
 			#if item['itemType'] == product:
+			return item
+class WriteMongoSpecifications(object):
+	#should happen after the main write so the item is always found
+	def __init__(self):
+		client = MongoClient(settings['MONGODB_SERVER'], settings['MONGODB_PORT'])
 
+		#connection = pymongo.Connection(
+		#	settings['MONGODB_SERVER'],
+		#	settings['MONGODB_PORT']
+		#)
+		self.db = client[settings['MONGODB_DB']]
+
+	def process_item(self, item, spider):
+		seenAt = datetime.datetime.utcnow()
+		#print "WriteMongoSpecifications called"
+		#print "---"
+		#print item
+		#print "---"
+		if item:
+			#print "and it is an item"
+			if item['itemType'] == 'specifications':
+				print "and its a specifications"
+
+				colname = "td_product" #need to change the collection from the default, which would be td_specifications
+				collection = self.db[colname]
+				print "selected column:"
+				print colname
+
+				#this is different than others. we are finding the product and adding this as a sub-item of it
+				tdItemNo = item['itemID']
+				foundItem = collection.find_one( {'itemNo': tdItemNo} )
+				if foundItem:
+					#collection = self.db[colname]
+					item = dict(item)
+
+					newspecs = {}
+					if item['genericSpecs']:
+						for i in item['genericSpecs']:
+							for key in i:
+								newspecs[key] = i[key]
+					item['genericSpecs'] = newspecs
+						
+					foundItem['specifications'] = item
+					foundItem['lastSeen'] = seenAt
+					collection.save(foundItem)
+					print "Updated specifications, inside of item."
+				else:
+					print "Uh oh. Didn't find the item, associated with this spec. This sholdn't happen!"
+					print tdItemNo
+					print item
+		return item
 #class JsonWriterPipeline(object):
 #	def __init__(self):
 #		self.file = open('items.jl', 'wb')

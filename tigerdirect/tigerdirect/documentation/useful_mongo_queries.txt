@@ -1,0 +1,4 @@
+db.td_product.count()
+db.td_product.count( {specifications: { $exists: 1} })
+db.td_product.find( {specifications: { $exists: 1} })
+db.td_product.findOne( {itemNo: "BEN-300628433"} )
