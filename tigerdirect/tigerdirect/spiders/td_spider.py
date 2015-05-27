@@ -128,6 +128,9 @@ class TigerDirectSpider(CrawlSpider):
 		priceItem['crawlTimestamp']=time.time()
 		yield priceItem
 
+		#some ssd drives:
+		#http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9099634&Sku=KIN-102513377
+		#http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9640807&Sku=KNY-102878750
 		#specifications?
 		hasSpecifications = response.xpath('//span[contains(text(), "pecifications")]')
 		if hasSpecifications:
@@ -149,7 +152,8 @@ class TigerDirectSpider(CrawlSpider):
 					key = key.extract()
 					value = value.extract()
 
-					cleanKeyQuery = re.compile('[A-Za-z0-9 .-]')
+					#cleanKeyQuery = re.compile('[A-Za-z0-9 .-]')
+					cleanKeyQuery = re.compile('[A-Za-z0-9 ]') #note- period and dash not allowed in key!
 					cleanValueQuery = re.compile('[A-Za-z0-9 .",\'!-]')
 					cleanKey = ''.join(re.findall(cleanKeyQuery, key))
 					cleanValue = ''.join(re.findall(cleanValueQuery, value))
