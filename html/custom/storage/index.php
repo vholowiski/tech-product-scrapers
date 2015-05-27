@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Bootstrap 101 Template</title>
+    <title>Search for Storage</title>
 
     <!-- Bootstrap -->
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -40,8 +40,8 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="/">Home</a></li>
-            <li><a href="/custom/storage/index.php">Filter Storage</a></li>
+            <li><a href="/">Home</a></li>
+            <li class="active"><a href="/custom/storage/index.php">Filter Storage</a></li>
             <li><a href="#contact">Contact</a></li>
           </ul>
         </div><!--/.nav-collapse -->
@@ -50,12 +50,32 @@
 
 <div class="container">
 
-      <div class="starter-template">
-        <h1>Bootstrap starter template</h1>
-        <p class="lead">Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.</p>
-      </div>
+  <div class="starter-template">
+    <h1>Find Storage</h1>
+    <p class="lead">Currently searching TigerDirect, hard drives</p>
+  </div>
 
-    </div><
+</div>
+
+<div class="container-fluid">
+  <div class="row" id="filterOptions">
+    <div class="col-md-4">
+      <div id="filterInternalExternal" class="btn-group" role="filterStorageType" aria-label="...">
+        <button type="button" class="btn btn-default">SSD</button>
+        <button type="button" class="btn btn-default">Spinning Disk</button>
+        <button type="button" class="btn btn-default">Both</button>
+      </div>
+      <br/>
+      <div id="filterInternalExternal" class="btn-group" role="filterInternalExternal" aria-label="...">
+        <button type="button" class="btn btn-default">Internal</button>
+        <button type="button" class="btn btn-default">External</button>
+        <button type="button" class="btn btn-default">Both</button>
+      </div>
+    </div>
+    <div class="col-md-4">.col-md-4</div>
+    <div class="col-md-4">.col-md-4</div>
+  </div>
+</div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="/js/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
