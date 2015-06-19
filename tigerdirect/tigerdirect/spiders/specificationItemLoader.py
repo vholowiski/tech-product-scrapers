@@ -8,6 +8,7 @@ import string
 class SpecificationItemLoader(ItemLoader):
 
 	def capacityStrToBytes(strCapacity):
+		print "-----parsecapacity"
 		def capacityGetMultiplier(unit):
 			multiplier = 0
 			#TODO : recognize the difference betweent B and b. maybe?
@@ -39,10 +40,13 @@ class SpecificationItemLoader(ItemLoader):
 		multiplier = capacityGetMultiplier(capacityMeasure)
 		bytes = capacityNumber* multiplier
 		bytes = str(bytes)
+		print "----done parsedrivecapcacity"
 		return bytes
 	def parseDriveMedium(string):
+		print "------parsemedia"
 		ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
 		medium = re.findall(ssdQuery, string)
+		print medium
 		mediumType = 'spinning'
 		if medium:
 			mediumType = 'ssd'
@@ -72,6 +76,6 @@ class SpecificationItemLoader(ItemLoader):
 	driveType_in = MapCompose(lowerString)
 	driveType_out = TakeFirst()
 
-	driveMedium = MapCompose(parseDriveMedium)
-	driveMedium = TakeFirst()
+	driveMedium_in = MapCompose(parseDriveMedium)
+	driveMedium_out = TakeFirst()
 

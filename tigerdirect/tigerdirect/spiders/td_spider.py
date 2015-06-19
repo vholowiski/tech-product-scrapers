@@ -18,23 +18,35 @@ from tigerdirect.spiders.itemItemLoader import ItemItemLoader
 from tigerdirect.spiders.priceItemLoader import PriceItemLoader
 from tigerdirect.spiders.specificationItemLoader import SpecificationItemLoader
 
-class TigerDirectSpider(CrawlSpider): 
-#class TigerDirectSpider(scrapy.Spider):
+# In order to debug, scrape only one page, do the following:
+# * comment out class TigerDirectSpider(CrawlSpider): 
+# * uncomment class TigerDirectSpider(scrapy.Spider):
+# * comment out start_urls and replace it with a start_urls with just one url, the one to crawl
+# * comment out the rules block
+# * comment out def parse_items(self, response):
+# * uncomment def parse(self, response):
+
+
+#class TigerDirectSpider(CrawlSpider): 
+class TigerDirectSpider(scrapy.Spider):
 	name = "tigerdirect"
 	allowed_domains = ["www.tigerdirect.ca"]
-	start_urls = ["http://www.tigerdirect.ca/applications/Category/Category_tlc.asp?CatId=5298","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=8198962&Sku=H450-8419", "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=5774231&CatId=234","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
+	
+	start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
+
+	#start_urls = ["http://www.tigerdirect.ca/applications/Category/Category_tlc.asp?CatId=5298","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=8198962&Sku=H450-8419", "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=5774231&CatId=234","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
+	
+	#below start_urls is the right one to use in production
 	#start_urls = ["http://www.tigerdirect.ca/sectors/category/site-directory.asp",	"http://www.tigerdirect.ca/applications/Refurb/refurb_tlc.asp",	"http://www.tigerdirect.ca/applications/openbox/openbox_tlc.asp",	"http://www.tigerdirect.ca/applications/campaigns/deals.asp?campaignid=2835"]
-	#start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=1310560&CatId=139"]
-	#one page, for rules: http://www.tigerdirect.ca/applications/category/category_slc.asp?CatId=6845
-	#and item details: http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9561721&CatId=6845
-	rules = (
-		Rule(LinkExtractor(allow=('_.lc\.asp\?CatId=[0-9]+$', ),deny=('SearchTools')), callback='parse_categories', follow= True),
-		Rule(LinkExtractor(allow=('category\/super.asp?Id=', ))),
-		Rule(LinkExtractor(allow=('item-details\.asp\?EdpNo=[0-9]*\&[cC]at[iI]d=[0-9]+$', ),deny=('searchtools')), callback='parse_items', follow= True),
-	)
+	
+	#rules = (
+	#	Rule(LinkExtractor(allow=('_.lc\.asp\?CatId=[0-9]+$', ),deny=('SearchTools')), callback='parse_categories', follow= True),
+	#	Rule(LinkExtractor(allow=('category\/super.asp?Id=', ))),
+	#	Rule(LinkExtractor(allow=('item-details\.asp\?EdpNo=[0-9]*\&[cC]at[iI]d=[0-9]+$', ),deny=('searchtools')), callback='parse_items', follow= True),
+	#)
 
 	def parse_categories(self, response):
-		#print("111111111111111111111")
+		#print("111111111def parse_items(self, response):111111111111")
 		if response.xpath('//a[@class="crumbCat"]/text()'):
 			l = CategoryItemLoader(TigerDirectCategory(), response)
 			l.add_value('itemType', 'category')
@@ -65,8 +77,8 @@ class TigerDirectSpider(CrawlSpider):
 					yield itemManufacturer
 					#print("8888888888888888")
 
-	#def parse(self, response):
-	def parse_items(self, response):
+	def parse(self, response):
+	#def parse_items(self, response):
 		#print("**********************")
 		l = ItemItemLoader(TigerdirectItem(), response)
 		item = TigerdirectItem()
@@ -178,13 +190,20 @@ class TigerDirectSpider(CrawlSpider):
 					ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
 					ssdQueryResult = re.findall(ssdQuery, prodName)
 					if ssdQueryResult:
-						l.add_xpath('driveMedium', ('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])'))
+						print "-----inside ssdQueryResult"
+						print ssdQueryResult[0]
+						l.add_value('driveMedium', ssdQueryResult[0])
+						print "----after addv_value"
+						print l
+						#l.add_xpath('driveMedium', ('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])'))
 						canonicalKeyFound = True
 
 					i = i + 1
 					if not canonicalKeyFound:
 						addSpec = {cleanKey: cleanValue}
 						genericSpecs +=[addSpec]
+			print "----about to load SpecificationsItem"
+			#print l["driveMedium"]
 			itemSpecifications = SpecificationsItem(l.load_item())
 			itemSpecifications['genericSpecs'] = genericSpecs
 			yield itemSpecifications

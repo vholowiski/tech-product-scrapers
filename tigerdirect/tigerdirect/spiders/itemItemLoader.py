@@ -25,9 +25,12 @@ class ItemItemLoader(ItemLoader):
 
 	def catIDfromURL(url):
 		itemIdQuery = re.compile('[Cc]at[Ii]d=[0-9]+')
-		categoryIDtxt = re.findall(itemIdQuery, url)[0]
-		categoryID = categoryIDtxt.replace("CatId=", "")
-		return categoryID
+		print url
+		catIDArry = re.findall(itemIdQuery, url)
+		if catIDArry:
+			categoryIDtxt = [0]
+			categoryID = categoryIDtxt.replace("CatId=", "")
+			return categoryID
 	def parseSpecification(specificationKV):
 		# def cleanKey(key):
 		# 	cleanQuery=re.compile('[A-Za-z0-9 .-]')
