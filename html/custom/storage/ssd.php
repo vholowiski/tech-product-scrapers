@@ -1,3 +1,7 @@
+<?php
+require_once('/home/dholowiski/development/tech-product-scrapers/api/shared/mongoConfig.php');
+
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -61,19 +65,34 @@
 <div class="container-fluid">
   <div class="row" id="filterOptions">
     <div class="col-md-4">
-      <div id="filterInternalExternal" class="btn-group" role="filterStorageType" aria-label="...">
-        <button type="button" class="btn btn-default">SSD</button>
-        <button type="button" class="btn btn-default">Spinning Disk</button>
-        <button type="button" class="btn btn-default">Both</button>
-      </div>
-      <br/>
-      <div id="filterInternalExternal" class="btn-group" role="filterInternalExternal" aria-label="...">
-        <button type="button" class="btn btn-default">Internal</button>
-        <button type="button" class="btn btn-default">External</button>
-        <button type="button" class="btn btn-default">Both</button>
-      </div>
+      .col-md-4
     </div>
-    <div class="col-md-4">.col-md-4</div>
+    <div class="col-md-4">
+      <?php
+      //grab the SSD Drives
+      var_dump(MONGO_SERVER_IP);
+      var_dump(MONGO_SERVER_PORT);
+      var_dump(MONGO_DATABASE);
+      var_dump(MONGO_TABLE_TD_PRODUCT);
+      $conn = new MongoClient("mongodb://".MONGO_SERVER_IP.":".MONGO_SERVER_PORT);
+      var_dump($conn);
+      $dbName = MONGO_DATABASE;
+      #$db = $conn->$dbName;
+      $db = $conn->techProducts_development;
+      var_dump($db);
+      $collName = MONGO_TABLE_TD_MANUFACTURER;
+      #$collection = $db->collName;
+      $collection = $db->td_product;
+      var_dump($collection);
+      #'specifications.driveMedium': 'ssd'
+      $query = array("specifications.driveMedium" => "ssd");
+      $cursor = $collection->find($query);
+      var_dump($cursor);
+      foreach ($cursor as $document) {
+        var_dump($document);
+      }
+      ?>
+    </div>
     <div class="col-md-4">.col-md-4</div>
   </div>
 </div>
