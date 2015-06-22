@@ -28,7 +28,8 @@ class ItemItemLoader(ItemLoader):
 		print url
 		catIDArry = re.findall(itemIdQuery, url)
 		if catIDArry:
-			categoryIDtxt = [0]
+			categoryIDtxt = catIDArry[0]
+			print categoryIDtxt
 			categoryID = categoryIDtxt.replace("CatId=", "")
 			return categoryID
 	def parseSpecification(specificationKV):

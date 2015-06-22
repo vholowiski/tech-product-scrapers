@@ -27,23 +27,23 @@ from tigerdirect.spiders.specificationItemLoader import SpecificationItemLoader
 # * uncomment def parse(self, response):
 
 
-#class TigerDirectSpider(CrawlSpider): 
-class TigerDirectSpider(scrapy.Spider):
+class TigerDirectSpider(CrawlSpider): 
+#class TigerDirectSpider(scrapy.Spider):
 	name = "tigerdirect"
 	allowed_domains = ["www.tigerdirect.ca"]
 	
-	start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
+	#start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
 
-	#start_urls = ["http://www.tigerdirect.ca/applications/Category/Category_tlc.asp?CatId=5298","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=8198962&Sku=H450-8419", "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=5774231&CatId=234","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
+	start_urls = ["http://www.tigerdirect.ca/applications/Category/Category_tlc.asp?CatId=5298","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=8198962&Sku=H450-8419", "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=5774231&CatId=234","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
 	
 	#below start_urls is the right one to use in production
 	#start_urls = ["http://www.tigerdirect.ca/sectors/category/site-directory.asp",	"http://www.tigerdirect.ca/applications/Refurb/refurb_tlc.asp",	"http://www.tigerdirect.ca/applications/openbox/openbox_tlc.asp",	"http://www.tigerdirect.ca/applications/campaigns/deals.asp?campaignid=2835"]
 	
-	#rules = (
-	#	Rule(LinkExtractor(allow=('_.lc\.asp\?CatId=[0-9]+$', ),deny=('SearchTools')), callback='parse_categories', follow= True),
-	#	Rule(LinkExtractor(allow=('category\/super.asp?Id=', ))),
-	#	Rule(LinkExtractor(allow=('item-details\.asp\?EdpNo=[0-9]*\&[cC]at[iI]d=[0-9]+$', ),deny=('searchtools')), callback='parse_items', follow= True),
-	#)
+	rules = (
+		Rule(LinkExtractor(allow=('_.lc\.asp\?CatId=[0-9]+$', ),deny=('SearchTools')), callback='parse_categories', follow= True),
+		Rule(LinkExtractor(allow=('category\/super.asp?Id=', ))),
+		Rule(LinkExtractor(allow=('item-details\.asp\?EdpNo=[0-9]*\&[cC]at[iI]d=[0-9]+$', ),deny=('searchtools')), callback='parse_items', follow= True),
+	)
 
 	def parse_categories(self, response):
 		#print("111111111def parse_items(self, response):111111111111")
@@ -77,8 +77,8 @@ class TigerDirectSpider(scrapy.Spider):
 					yield itemManufacturer
 					#print("8888888888888888")
 
-	def parse(self, response):
-	#def parse_items(self, response):
+	#def parse(self, response):
+	def parse_items(self, response):
 		#print("**********************")
 		l = ItemItemLoader(TigerdirectItem(), response)
 		item = TigerdirectItem()
