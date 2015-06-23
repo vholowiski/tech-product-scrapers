@@ -30,6 +30,8 @@ class PriceItem(scrapy.Item):
     finalPrice = scrapy.Field()
     purchaseURL = scrapy.Field()
     itemType = scrapy.Field() # price
+    itemID = scrapy.Field()
+    itemMongoID = scrapy.Field()
 
 class TigerdirectItem(scrapy.Item):
     # define the fields for your item here like:

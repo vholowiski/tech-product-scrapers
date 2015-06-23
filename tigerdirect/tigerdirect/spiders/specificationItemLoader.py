@@ -8,7 +8,7 @@ import string
 class SpecificationItemLoader(ItemLoader):
 
 	def capacityStrToBytes(strCapacity):
-		print "-----parsecapacity"
+		#print "-----parsecapacity"
 		def capacityGetMultiplier(unit):
 			multiplier = 0
 			#TODO : recognize the difference betweent B and b. maybe?
@@ -30,7 +30,7 @@ class SpecificationItemLoader(ItemLoader):
 				multiplier = 1000
 			return multiplier
 		
-		print strCapacity
+		#print strCapacity
 		capcityNumberQuery = re.compile('[0-9]')
 		capacityMeasureQuery = re.compile('[TtGgMmKk][Bb]')
 		capacityNumber = int(''.join(re.findall(capcityNumberQuery, strCapacity)))
@@ -40,16 +40,17 @@ class SpecificationItemLoader(ItemLoader):
 		multiplier = capacityGetMultiplier(capacityMeasure)
 		bytes = capacityNumber* multiplier
 		bytes = str(bytes)
-		print "----done parsedrivecapcacity"
+		#print "----done parsedrivecapcacity"
 		return bytes
 	def parseDriveMedium(string):
-		print "------parsemedia"
+		#print "------parsemedia"
 		ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
 		medium = re.findall(ssdQuery, string)
-		print medium
+		#print medium
 		mediumType = 'spinning'
 		if medium:
 			mediumType = 'ssd'
+			print "SSD Drive"
 		return mediumType
 
 	def cleanKey(key):

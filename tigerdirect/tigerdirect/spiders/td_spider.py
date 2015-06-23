@@ -34,10 +34,10 @@ class TigerDirectSpider(CrawlSpider):
 	
 	#start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
 
-	start_urls = ["http://www.tigerdirect.ca/applications/Category/Category_tlc.asp?CatId=5298","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=8198962&Sku=H450-8419", "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=5774231&CatId=234","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
+	#start_urls = ["http://www.tigerdirect.ca/applications/Category/Category_tlc.asp?CatId=5298","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=8198962&Sku=H450-8419", "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=5774231&CatId=234","http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=6894578&Sku=K102-1298"]
 	
 	#below start_urls is the right one to use in production
-	#start_urls = ["http://www.tigerdirect.ca/sectors/category/site-directory.asp",	"http://www.tigerdirect.ca/applications/Refurb/refurb_tlc.asp",	"http://www.tigerdirect.ca/applications/openbox/openbox_tlc.asp",	"http://www.tigerdirect.ca/applications/campaigns/deals.asp?campaignid=2835"]
+	start_urls = ["http://www.tigerdirect.ca/sectors/category/site-directory.asp",	"http://www.tigerdirect.ca/applications/Refurb/refurb_tlc.asp",	"http://www.tigerdirect.ca/applications/openbox/openbox_tlc.asp",	"http://www.tigerdirect.ca/applications/campaigns/deals.asp?campaignid=2835"]
 	
 	rules = (
 		Rule(LinkExtractor(allow=('_.lc\.asp\?CatId=[0-9]+$', ),deny=('SearchTools')), callback='parse_categories', follow= True),
@@ -132,6 +132,9 @@ class TigerDirectSpider(CrawlSpider):
 		#l.add_value('crawlTimestamp', time.time())
 		l.add_value('source', 'wwww.tigerdirect.ca')
 
+		l.add_value('itemID', itemItem['itemNo'])
+		#l.addx('itemMongoID', bot)
+
 		#TODO get price for 'add to car to see price'
 		#http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?CatId=5739&EdpNo=9641093
 		#its in the javascript!
@@ -151,8 +154,8 @@ class TigerDirectSpider(CrawlSpider):
 			l.add_value('itemType', 'specifications')
 			#get the keys (specificatin types) in the table
 			specKeys = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/th/text()')
-			print "found this many spec keys:"
-			print len(specKeys)
+			#print "found this many spec keys:"
+			#print len(specKeys)
 			#first recognize canonical specs
 			i = 0
 			genericSpecs = [] #set up an empty array for specs not canonical
@@ -192,11 +195,11 @@ class TigerDirectSpider(CrawlSpider):
 						ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
 						ssdQueryResult = re.findall(ssdQuery, prodName)
 						if ssdQueryResult:
-							print "-----inside ssdQueryResult"
-							print ssdQueryResult[0]
+							#print "-----inside ssdQueryResult"
+							#print ssdQueryResult[0]
 							l.add_value('driveMedium', ssdQueryResult[0])
-							print "----after addv_value"
-							print l
+							#print "----after addv_value"
+							#print l
 							#l.add_xpath('driveMedium', ('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])'))
 							canonicalKeyFound = True
 
@@ -204,7 +207,7 @@ class TigerDirectSpider(CrawlSpider):
 						if not canonicalKeyFound:
 							addSpec = {cleanKey: cleanValue}
 							genericSpecs +=[addSpec]
-			print "----about to load SpecificationsItem"
+			#print "----about to load SpecificationsItem"
 			#print l["driveMedium"]
 			itemSpecifications = SpecificationsItem(l.load_item())
 			itemSpecifications['genericSpecs'] = genericSpecs

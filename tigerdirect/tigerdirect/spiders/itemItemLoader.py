@@ -25,11 +25,11 @@ class ItemItemLoader(ItemLoader):
 
 	def catIDfromURL(url):
 		itemIdQuery = re.compile('[Cc]at[Ii]d=[0-9]+')
-		print url
+		#print url
 		catIDArry = re.findall(itemIdQuery, url)
 		if catIDArry:
 			categoryIDtxt = catIDArry[0]
-			print categoryIDtxt
+			#print categoryIDtxt
 			categoryID = categoryIDtxt.replace("CatId=", "")
 			return categoryID
 	def parseSpecification(specificationKV):
@@ -54,30 +54,30 @@ class ItemItemLoader(ItemLoader):
 		# 	return isspecial
 
 		returnVal = cleanKV(specificationKV)
-		if isSpecial(returnVal):
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
-			print "CAPACAITY"
+		#if isSpecial(returnVal):
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
+			# print "CAPACAITY"
 			
 		return returnVal
 		#kv because it comes in as key/value dict
