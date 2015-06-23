@@ -159,49 +159,51 @@ class TigerDirectSpider(CrawlSpider):
 			if len(specKeys) > 0:
 				for key in specKeys:
 					canonicalKeyFound = False
+					valueArray = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')
+					if valueArray:
+						value = valueArray[i]
+						#value = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')[i]
+						key = key.extract()
+						value = value.extract()
+
+						#cleanKeyQuery = re.compile('[A-Za-z0-9 .-]')
+						cleanKeyQuery = re.compile('[A-Za-z0-9 ]') #note- period and dash not allowed in key!
+						cleanValueQuery = re.compile('[A-Za-z0-9 .",\'!-]')
+						cleanKey = ''.join(re.findall(cleanKeyQuery, key))
+						cleanValue = ''.join(re.findall(cleanValueQuery, value))
 					
-					value = response.xpath('//table[contains(@class, "prodSpec")]/tbody/tr/td/text()')[i]
-					key = key.extract()
-					value = value.extract()
+						#now, look for canonical
+						#capacity, in bytes
+						capacityQuery = re.compile('[Cc]apacity$')
+						if re.findall(capacityQuery, cleanKey):
+							l.add_value('driveBytesCapacity', cleanValue)
+							canonicalKeyFound = True
+						#internal, external?
+						driveTypeQuery = re.compile('[Dd]rive [Tt]ype')
+						if re.findall(driveTypeQuery, cleanKey):
+							l.add_value('driveType', cleanValue)
+							canonicalKeyFound = True
+						#ssd or spinning?
+						prodName = response.xpath('//div[@class="prodName"]/h1/text()').extract()[0]
+						#TODO: Instead of searching for 'ssd' i shoud just be checking if this is a hard drive
+							#and then setting it to ssd or spinning
+							#but i need to build a function for that
+							#for now, no ssd means its spinning
+						ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
+						ssdQueryResult = re.findall(ssdQuery, prodName)
+						if ssdQueryResult:
+							print "-----inside ssdQueryResult"
+							print ssdQueryResult[0]
+							l.add_value('driveMedium', ssdQueryResult[0])
+							print "----after addv_value"
+							print l
+							#l.add_xpath('driveMedium', ('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])'))
+							canonicalKeyFound = True
 
-					#cleanKeyQuery = re.compile('[A-Za-z0-9 .-]')
-					cleanKeyQuery = re.compile('[A-Za-z0-9 ]') #note- period and dash not allowed in key!
-					cleanValueQuery = re.compile('[A-Za-z0-9 .",\'!-]')
-					cleanKey = ''.join(re.findall(cleanKeyQuery, key))
-					cleanValue = ''.join(re.findall(cleanValueQuery, value))
-				
-					#now, look for canonical
-					#capacity, in bytes
-					capacityQuery = re.compile('[Cc]apacity$')
-					if re.findall(capacityQuery, cleanKey):
-						l.add_value('driveBytesCapacity', cleanValue)
-						canonicalKeyFound = True
-					#internal, external?
-					driveTypeQuery = re.compile('[Dd]rive [Tt]ype')
-					if re.findall(driveTypeQuery, cleanKey):
-						l.add_value('driveType', cleanValue)
-						canonicalKeyFound = True
-					#ssd or spinning?
-					prodName = response.xpath('//div[@class="prodName"]/h1/text()').extract()[0]
-					#TODO: Instead of searching for 'ssd' i shoud just be checking if this is a hard drive
-						#and then setting it to ssd or spinning
-						#but i need to build a function for that
-						#for now, no ssd means its spinning
-					ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
-					ssdQueryResult = re.findall(ssdQuery, prodName)
-					if ssdQueryResult:
-						print "-----inside ssdQueryResult"
-						print ssdQueryResult[0]
-						l.add_value('driveMedium', ssdQueryResult[0])
-						print "----after addv_value"
-						print l
-						#l.add_xpath('driveMedium', ('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])'))
-						canonicalKeyFound = True
-
-					i = i + 1
-					if not canonicalKeyFound:
-						addSpec = {cleanKey: cleanValue}
-						genericSpecs +=[addSpec]
+						i = i + 1
+						if not canonicalKeyFound:
+							addSpec = {cleanKey: cleanValue}
+							genericSpecs +=[addSpec]
 			print "----about to load SpecificationsItem"
 			#print l["driveMedium"]
 			itemSpecifications = SpecificationsItem(l.load_item())
