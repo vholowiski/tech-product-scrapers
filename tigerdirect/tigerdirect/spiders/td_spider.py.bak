@@ -12,9 +12,6 @@ from tigerdirect.items import PriceItem
 from tigerdirect.items import TigerDirectManufacturer
 #from tig;erdirect.items import ItemSpecifications
 
-#import parse_ that have been moved out to their own files
-from tigerdirect.parse.Categories import parse_categories
-
 from tigerdirect.spiders.categoryItemLoader import CategoryItemLoader
 from tigerdirect.spiders.mfgItemLoader import MfgItemLoader
 from tigerdirect.spiders.itemItemLoader import ItemItemLoader
