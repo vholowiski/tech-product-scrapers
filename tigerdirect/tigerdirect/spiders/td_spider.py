@@ -192,12 +192,14 @@ class TigerDirectSpider(CrawlSpider):
 							#and then setting it to ssd or spinning
 							#but i need to build a function for that
 							#for now, no ssd means its spinning
-						ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
-						ssdQueryResult = re.findall(ssdQuery, prodName)
-						if ssdQueryResult:
+						#ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
+						#ssdQueryResult = re.findall(ssdQuery, prodName)
+						#if ssdQueryResult:
+						if re.findall(driveTypeQuery, cleanKey):
 							#print "-----inside ssdQueryResult"
 							#print ssdQueryResult[0]
-							l.add_value('driveMedium', ssdQueryResult[0])
+							l.add_value('driveMedium', prodName)
+							#l.add_value('driveMedium', ssdQueryResult[0])
 							#print "----after addv_value"
 							#print l
 							#l.add_xpath('driveMedium', ('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])'))
