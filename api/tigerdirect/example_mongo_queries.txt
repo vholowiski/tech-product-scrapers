@@ -2,3 +2,7 @@ Example queries
 
 Simple - find everything that has a category
 db.td_product.find( {tdCategoryID: {$exists: true} } )
+
+Find SSD Drives
+db.getCollection('td_product').find({'specifications.driveMedium': 'ssd'})
+

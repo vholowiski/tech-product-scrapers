@@ -64,36 +64,101 @@ require_once('/home/dholowiski/development/tech-product-scrapers/api/shared/mong
 
 <div class="container-fluid">
   <div class="row" id="filterOptions">
-    <div class="col-md-4">
+    <!-- <div class="col-md-4">
       .col-md-4
-    </div>
-    <div class="col-md-4">
+    </div> -->
+    <div class="col-md-12">
+    <table class="table">
+    <tr class="success">
+    <td>itemNo</td>
+    <td>Model</td>
+    <td>Capacity</td>
+    <td>finalPrice</td>
+    <td>Price Per GB</td>
+    </tr>
+    
       <?php
+      $productList = array();
       //grab the SSD Drives
-      var_dump(MONGO_SERVER_IP);
-      var_dump(MONGO_SERVER_PORT);
-      var_dump(MONGO_DATABASE);
-      var_dump(MONGO_TABLE_TD_PRODUCT);
+      #var_dump(MONGO_SERVER_IP);
+      #var_dump(MONGO_SERVER_PORT);
+      #var_dump(MONGO_DATABASE);
+      #var_dump(MONGO_TABLE_TD_PRODUCT);
       $conn = new MongoClient("mongodb://".MONGO_SERVER_IP.":".MONGO_SERVER_PORT);
-      var_dump($conn);
+      #var_dump($conn);
       $dbName = MONGO_DATABASE;
       #$db = $conn->$dbName;
       $db = $conn->techProducts_development;
-      var_dump($db);
+      #var_dump($db);
       $collName = MONGO_TABLE_TD_MANUFACTURER;
       #$collection = $db->collName;
       $collection = $db->td_product;
-      var_dump($collection);
+      #var_dump($collection);
       #'specifications.driveMedium': 'ssd'
       $query = array("specifications.driveMedium" => "ssd");
       $cursor = $collection->find($query);
-      var_dump($cursor);
+      #var_dump($cursor);
       foreach ($cursor as $document) {
-        var_dump($document);
+        
+        $capacityBytes = $document['specifications']['driveBytesCapacity'];
+        $capacityGB = $capacityBytes / 1000000000;
+        $itemNo = $document['itemNo'];
+        $conn2 = new MongoClient("mongodb://".MONGO_SERVER_IP.":".MONGO_SERVER_PORT);
+        $db2 = $conn2->techProducts_development;
+        $collection2 = $db2->td_price;
+
+        #db.getCollection('td_price').find().sort({"seenAt":-1}).limit(1)
+        #$query2 = array('itemID' => $itemNo);
+        $query2 = array('itemID' => $itemNo);
+
+        $cursor2 = $collection2->find($query2)->sort(array('seenAt' => -1))->limit(1);
+        
+        #$itemNo = $document['itemNo'];
+        $modelNo = $document['modelNo'];
+        #$finalPrice = $document2['finalPrice'];
+        $purchaseURL = $document2['purchaseURL'];
+  
+        #echo("itemNo: ".$document['itemNo']." Model: ".$document['modelNo']." - Capacity: ".$capacityGB." gb \n");        
+        foreach ($cursor2 as $document2) {
+          echo('$');
+          $finalPrice = $document2['finalPrice'];
+          $purchaseURL = $document2['purchaseURL'];
+          #echo("FinalPrice: <a href=\"".$document2['purchaseURL']."\">".$document2['finalPrice']."</a>\n");
+          #echo("<pre>\n");
+          #var_dump($document2);
+          #echo("</pre>\n");
+        }
+        $pricePerGB = $capacityGB / $finalPrice;
+        $product = array();
+        $product['itemNo'] = $itemNo;
+        $product['modelNo'] = $modelNo;
+        $product['capacityGB'] = $capacityGB;
+        $product['finalPrice'] = $finalPrice;
+        $product['purchaseURL'] = $purchaseURL;
+        $product['pricePerGB'] = $capacityGB / $finalPrice;
+        array_push($productList, $product);
+	#var_dump($document);
+      }
+      $price = array();
+      foreach ($productList as $key => $row)
+      {
+          $price[$key] = $row['pricePerGB'];
+      }
+      array_multisort($price, SORT_ASC, $productList);
+
+      foreach ($productList as $product) {
+        echo("<tr>\n");
+        echo("<td>".$product['itemNo']."</td>\n");
+        echo("<td>".$product['modelNo']."</td>\n");
+        echo("<td>".$product['capacityGB']."</td>\n");
+        echo("<td><a href=\"".$product['purchaseURL']."\">".$product['finalPrice']."</a></td>\n");
+        echo("<td>".$product['pricePerGB']."</td>\n");
+        echo("</tr>\n");        
       }
       ?>
+    </table>
     </div>
-    <div class="col-md-4">.col-md-4</div>
+    <!-- <div class="col-md-4">.col-md-4</div> -->
   </div>
 </div>
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
