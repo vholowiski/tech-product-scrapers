@@ -3,3 +3,4 @@ tigerdirect/category
 *.json
 *.pyc
 *.log
+tigerdirect/log.txt
