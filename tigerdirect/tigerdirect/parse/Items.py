@@ -14,6 +14,7 @@ from tigerdirect.spiders.priceItemLoader import PriceItemLoader
 from tigerdirect.spiders.specificationItemLoader import SpecificationItemLoader
 
 def parse_items(self, response):
+	print "parse_items - begin"
         #print("**********************")
         l = ItemItemLoader(TigerdirectItem(), response)
         item = TigerdirectItem()
@@ -105,7 +106,7 @@ def parse_items(self, response):
                                                 #and then setting it to ssd or spinning
                                                 #but i need to build a function for that
                                                 #for now, no ssd means its spinning
-                                        ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
+                                        ssdQuery = re.compile('([Ss]olid *[Ss]tate *[Dd]rive)|([Ss][Ss][Dd])')
                                         ssdQueryResult = re.findall(ssdQuery, prodName)
                                         if ssdQueryResult:
                                                 #print "-----inside ssdQueryResult"

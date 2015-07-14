@@ -44,7 +44,7 @@ class SpecificationItemLoader(ItemLoader):
 		return bytes
 	def parseDriveMedium(string):
 		#print "------parsemedia"
-		ssdQuery = re.compile('([Ss]olid [Ss]tate [Dd]rive)|([Ss][Ss][Dd])')
+		ssdQuery = re.compile('([Ss]olid *[Ss]tate *[Dd]rive)|([Ss][Ss][Dd])')
 		medium = re.findall(ssdQuery, string)
 		#print medium
 		mediumType = 'spinning'

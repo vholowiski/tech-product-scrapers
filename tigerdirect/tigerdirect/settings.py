@@ -22,7 +22,8 @@ ITEM_PIPELINES = {
  	'tigerdirect.pipelines.WriteMongoSpecifications': 910,
  	}
 
-MONGODB_SERVER = "192.168.1.51"
+MONGODB_SERVER = "127.0.0.1"
+#MONGODB_SERVER = "192.168.1.51"
 MONGODB_PORT = 27017
 #MONGODB_DB = "techProducts_development"
 MONGODB_DB = "techProducts_development"
