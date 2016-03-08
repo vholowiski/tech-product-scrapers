@@ -42,7 +42,7 @@
           <ul class="nav navbar-nav">
             <li class="active"><a href="/">Home</a></li>
             <li><a href="/custom/storage/index.php">Filter Storage</a></li>
-            <li><a href="#contact">Contact</a></li>
+            <li><a href="/categories/index.php">Categories</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>

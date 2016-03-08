@@ -47,7 +47,8 @@ class mongoCategories {
 		Expects a data type MongoID
 		Returns an associative array which is the category object*/
 
-		$mongoCat = $this->getMongoDB();
+		$mongoDBConn = $this->getMongoDB();
+		$mongoCat = $mongoDBConn->MONGO_TABLE_TD_CATEGORY;
 		#$mongoID = new MongoID($mongoID);
 		$document = $mongoCat->findOne(array('_id' => $mongoID));
 
@@ -55,8 +56,17 @@ class mongoCategories {
 
 	}
 
-	public function getCategories($query) {
+	public function getCategories($query = false) {
+		$mongoDBConn = $this->getMongoDB();
+		$mongoCat = $mongoDBConn->td_category;
 
+		//$mongoCat = $this->getMongoDB();
+		if (!$query) {
+			//the default query
+			$result = $mongoCat->find();
+		}
+		//print_r($result->count());
+		return $result;
 	}
 
 	public function buildQuery($stuff, $things) {

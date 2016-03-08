@@ -1,0 +1,62 @@
+#td_single_spider.py
+import scrapy
+import time
+import re
+import logging
+
+from scrapy.contrib.spiders import CrawlSpider, Rule
+from scrapy.contrib.linkextractors import LinkExtractor
+
+#from tigerdirect.items import TigerdirectItem
+#from tigerdirect.items import TigerDirectCategory
+#from tigerdirect.items import SpecificationsItem
+#from tigerdirect.items import PriceItem
+#from tigerdirect.items import TigerDirectManufacturer
+#from tigerdirect.items import ItemSpecifications
+
+#import parse_ that have been moved out to their own files
+from tigerdirect.parse.Categories import parse_categories
+#import tigerdirect.parse.*
+from tigerdirect.parse import Items
+#import tigerdirect.parse.Items
+#from tigerdirect.parse.Items import parse_items
+from tigerdirect.parse.Test import test_test
+
+#from tigerdirect.spiders.categoryItemLoader import CategoryItemLoader
+#from tigerdirect.spiders.mfgItemLoader import MfgItemLoader
+#from tigerdirect.spiders.itemItemLoader import ItemItemLoader
+#from tigerdirect.spiders.priceItemLoader import PriceItemLoader
+#from tigerdirect.spiders.specificationItemLoader import SpecificationItemLoader
+
+# In order to debug, scrape only one page, do the following:
+# * comment out class TigerDirectSpider(CrawlSpider): 
+# * uncomment class TigerDirectSpider(scrapy.Spider):
+# * comment out start_urls and replace it with a start_urls with just one url, the one to crawl
+# * comment out the rules block
+# * comment out def parse_items(self, response):
+# * uncomment def parse(self, response):
+
+
+#class TigerDirectSpider(CrawlSpider): 
+
+	#def __init__(self, testURL = '', *args, **kwargs):
+	#	super(TigerDirectSpider, self).__init__(*args, **kwargs)
+	#	print "init"
+		#self.testURL = testURL
+                                                             		#if self.testURL:
+	#	if self.testURL != '':
+	#		print testURL
+
+class TigerDirectSpider(scrapy.Spider):
+	name = "tigerdirectsingle"
+	allowed_domains = ["www.tigerdirect.ca"]
+	start_urls = ["http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9168355&CatId=5300",
+        "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=2979419&CatId=5300",
+        "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=7739487&CatId=5300",
+        "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9625658&CatId=5300",
+        "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=9530411&CatId=5300",
+        "http://www.tigerdirect.ca/applications/SearchTools/item-details.asp?EdpNo=3278748&CatId=5300"]	
+
+        def parse(self, response):
+		Items.parse_items(self,response)
+		print "yay"
