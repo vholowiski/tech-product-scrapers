@@ -18,6 +18,24 @@ from tigerdirect.spiders.itemItemLoader import ItemItemLoader
 from tigerdirect.spiders.priceItemLoader import PriceItemLoader
 from tigerdirect.spiders.specificationItemLoader import SpecificationItemLoader
 
+def catIDfromURL(url):
+		#needs to be put in a utility file, because this is also used in td_spider.py
+		itemIdQuery = re.compile('[Cc]at[Ii]d=[0-9]+$')
+		categoryIDtxt = re.findall(itemIdQuery, url)[0]
+		categoryID = categoryIDtxt.replace("CatId=", "")
+		return int(categoryID)
+def catLevelfromURL(url):
+	#needs to be put in a utility file, because this is also used in td_spider.py
+	catLevelQuery = re.compile('(?:category\_)([st])(?:lc)')
+	catLevelArry = re.findall(catLevelQuery, url)
+	if catLevelArry:
+		catLevel = catLevelArry[0]
+		if catLevel == 't':
+			#top level - level 1
+			return 1
+		if catLevel == 's':
+			#second level - level 2
+			return 2
 # In order to debug, scrape only one page, do the following:
 # * comment out class TigerDirectSpider(CrawlSpider): 
 # * uncomment class TigerDirectSpider(scrapy.Spider):
@@ -61,18 +79,52 @@ class TigerDirectSpider(CrawlSpider):
 		print "In parse_categories"
 		#print("111111111def parse_items(self, response):111111111111")
 		if response.xpath('//a[@class="crumbCat"]/text()'):
-			l = CategoryItemLoader(TigerDirectCategory(), response)
-			l.add_value('itemType', 'category')
-			l.add_value('categoryName', response.xpath('//a[@class="crumbCat"]/text()').extract())
-			l.add_value('tdCategoryID', response.url)
+			for crumb in response.xpath('//a[@class="crumbCat"]'):
+				crumbHref = crumb.select('@href').extract()[0]
+				crumbText = crumb.select('text()').extract()
+				l = CategoryItemLoader(TigerDirectCategory(), response)
+				l.add_value('itemType', 'category')
+				l.add_value('categoryName', crumbText)
+				l.add_value('tdCategoryID', crumbHref)
+				l.add_value('tdCategoryLevel', crumbHref)
+
+				#get the category level. if it's 2, get the parent
+				catLevel = catLevelfromURL(crumbHref)
+				if catLevel == 2:
+					#get the first crumbcat - should? be the parent
+					firstCrumbCat = response.xpath('//a[@class="crumbCat"]')[0]
+					firstCrumbHref = firstCrumbCat.select('@href').extract()[0]
+					firstCatID = catIDfromURL(firstCrumbHref)
+					l.add_value('tdCategoryParent', firstCatID)
+					#print "First cfrumbcat"
+					#print firstCrumbCat
+				#print(crumbHref)
+				#fullURIstr = ''.join(("http://www.tigerdirect.ca/", crumbHref))
+				#l.add_value('uri', fullURIstr)
+				#print "fullURIstr"
+				#print fullURIstr
+				#print "response.url"
+				#print response.url
+				if catIDfromURL(crumbHref) == catIDfromURL(response.url):
+					for link in response.xpath('//ul[@class="filterItem"]/li/a'):
+						#print("333333333333333333")
+						l.add_value('manufacturers', link)
+				itemProcessedCatetory = TigerDirectCategory(l.load_item())
+				yield itemProcessedCatetory
+
+#			l = CategoryItemLoader(TigerDirectCategory(), response)
+#			l.add_value('itemType', 'category')
+#			l.add_value('categoryName', response.xpath('//a[@class="crumbCat"]/text()').extract())
+#			l.add_value('tdCategoryID', response.url)
+#			l.add_value('tdCategoryLevel', response.url)
 			#manufacturers
 			#print("222222222222222222")
-			for link in response.xpath('//ul[@class="filterItem"]/li/a'):
-				#print("333333333333333333")
-				l.add_value('manufacturers', link)
-			l.add_value('uri', response.url)
-			itemProcessedCatetory = TigerDirectCategory(l.load_item())
-			yield itemProcessedCatetory
+#			for link in response.xpath('//ul[@class="filterItem"]/li/a'):
+#				#print("333333333333333333")
+#				l.add_value('manufacturers', link)
+#			l.add_value('uri', response.url)
+#			itemProcessedCatetory = TigerDirectCategory(l.load_item())
+#			yield itemProcessedCatetory
 
 			#this spews manufacturers
 			mfgLinksList = [response.xpath('//ul[@class="filterItem"]/li/a'), response.xpath('//ul[@class="filterItem"]/span/li/a')]

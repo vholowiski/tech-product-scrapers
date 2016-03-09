@@ -59,25 +59,46 @@ require_once(__DIR__."/../../api/tigerdirect/classes/database/mongoCategories.ph
 <?php 
         //get the categories
         $categoriesOBJ = new mongoCategories(MONGO_SERVER_IP, MONGO_SERVER_PORT, MONGO_DATABASE);
-        $categoriesCursor = $categoriesOBJ->getCategories();
+        if ( (isset($_REQUEST)) && (isset($_REQUEST['tdCatID'])) ) {
+          $parentCatID = (int) $_REQUEST['tdCatID'];
+          var_dump($parentCatID);
+          $parentCat = $categoriesOBJ->getOneCategoryByID($parentCatID);
+          #var_dump($parentCat);
+          $categoriesCursor = $categoriesOBJ->getChildCategories($parentCatID);  
+        } else {
+          $categoriesCursor = $categoriesOBJ->getAllParentCategories();
+        }
+        
+        
         if ($categoriesCursor) {
 ?>
         <table class="table table-striped">
           <thead>
             <tr>
-              <th>Category</th>
+<?php
+  if ( (isset($parentCat)) && ($parentCat) ) {
+echo("              <th>".$parentCat['categoryName']."</th>\n");
+  } else {
+echo("              <th>Category</th>\n");    
+  }
+?>
+
             <tr>
           </thead>
           <tbody>
 <?php
           foreach ($categoriesCursor as $doc) {
             //var_dump($doc);
-            echo("<tr>");
-            echo("  <th id = \"".$doc['_id']."\">");
-            //print_r($doc);
-            echo($doc['categoryName']);
-            echo("  </th>\n");
-            echo("</tr>\n");
+	$row = "";
+	$row = $row."<tr>\n";
+	$row = $row."  <th id = \"".$doc['_id']."\" tdCatID=\"".$doc['tdCategoryID']."\">";
+	$row = $row."<a href=\"/categories/index.php?tdCatID=".$doc['tdCategoryID']."\">";
+  $row = $row.$doc['categoryName'];
+  $row = $row."</a>";
+	$row = $row."</th>\n";
+	$row = $row."</tr>\n";
+	echo("$row");
+	
           }  
 ?>
           </tbody>

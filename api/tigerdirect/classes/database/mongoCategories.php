@@ -56,6 +56,29 @@ class mongoCategories {
 
 	}
 
+	public function getOneCategoryByID($tdCatID) {
+		$mongoDBConn = $this->getMongoDB();
+		$mongoCat = $mongoDBConn->td_category;
+		$result = $mongoCat->findOne(array('tdCategoryID'=>$tdCatID));
+		return $result;
+	}
+
+	public function getAllParentCategories() {
+		$mongoDBConn = $this->getMongoDB();
+		$mongoCat = $mongoDBConn->td_category;
+		$result = $mongoCat->find(array('tdCategoryLevel'=>1));
+		return $result;		
+	}
+
+	public function getChildCategories($parentID) {
+		$mongoDBConn = $this->getMongoDB();
+		$mongoCat = $mongoDBConn->td_category;
+		$result = $mongoCat->find(array('tdCategoryParent'=>$parentID));
+var_dump($parentID);
+		var_dump($result->count());
+		return $result;
+	}
+
 	public function getCategories($query = false) {
 		$mongoDBConn = $this->getMongoDB();
 		$mongoCat = $mongoDBConn->td_category;
