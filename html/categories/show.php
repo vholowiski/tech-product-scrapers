@@ -1,6 +1,8 @@
 <?php
 require_once("../../api/shared/mongoConfig.php");
 require_once(__DIR__."/../../api/tigerdirect/classes/database/mongoCategories.php");
+require_once(__DIR__."/../../api/tigerdirect/classes/database/mongoProducts.php");
+require_once(__DIR__."/../../api/shared/products/productUtils.class.php");
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,7 +11,7 @@ require_once(__DIR__."/../../api/tigerdirect/classes/database/mongoCategories.ph
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Listing Categories</title>
+    <title>Showing Products in Category</title>
 
     <!-- Bootstrap -->
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -58,19 +60,15 @@ require_once(__DIR__."/../../api/tigerdirect/classes/database/mongoCategories.ph
         <h1>Bootstrap starter template</h1>
 <?php 
         //get the categories
-        $categoriesOBJ = new mongoCategories(MONGO_SERVER_IP, MONGO_SERVER_PORT, MONGO_DATABASE);
+        $productsOBJ = new mongoProducts(MONGO_SERVER_IP, MONGO_SERVER_PORT, MONGO_DATABASE);
         if ( (isset($_REQUEST)) && (isset($_REQUEST['tdCatID'])) ) {
-          $parentCatID = (int) $_REQUEST['tdCatID'];
-          //var_dump($parentCatID);
-          $parentCat = $categoriesOBJ->getOneCategoryByID($parentCatID);
+          $catID = (int) $_REQUEST['tdCatID'];
+          //var_dump($catID);
+          $productCursor = $productsOBJ->getProductsByCategoryID($catID);
           #var_dump($parentCat);
-          $categoriesCursor = $categoriesOBJ->getChildCategories($parentCatID);  
-        } else {
-          $categoriesCursor = $categoriesOBJ->getAllParentCategories();
-        }
-        
-        
-        if ($categoriesCursor) {
+        } 
+
+        if ($productCursor) {
 ?>
         <table class="table table-striped">
           <thead>
@@ -79,7 +77,7 @@ require_once(__DIR__."/../../api/tigerdirect/classes/database/mongoCategories.ph
   if ( (isset($parentCat)) && ($parentCat) ) {
 echo("              <th>".$parentCat['categoryName']."</th>\n");
   } else {
-echo("              <th>Category</th>\n");    
+echo("              <th></th>\n");    
   }
 ?>
 
@@ -87,23 +85,16 @@ echo("              <th>Category</th>\n");
           </thead>
           <tbody>
 <?php
-          foreach ($categoriesCursor as $doc) {
+        //create a productUtils objetct
+        $putil = new productUtils();
+
+          foreach ($productCursor as $doc) {
             //var_dump($doc);
 	$row = "";
 	$row = $row."<tr>\n";
-	$row = $row."  <th id = \"".$doc['_id']."\" tdCatID=\"".$doc['tdCategoryID']."\">";
-	
-  //create the link
-  if ( (isset($row['tdCategoryLevel'])) && ($row['tdCategoryLevel'] == 1) ) {
-    //first level - link to the child category
-    $row = $row."<a href=\"/categories/index.php?tdCatID=".$doc['tdCategoryID']."\">";  
-  } else {
-    //second level, link to category details
-    $row = $row."<a href=\"/categories/show.php?tdCatID=".$doc['tdCategoryID']."\">";  
-  }
-  
-  
-  $row = $row.$doc['categoryName'];
+	$row = $row."  <th id = \"".$doc['_id']."\" tdItemNo=\"".$doc['tdItemNo']."\">";
+	$row = $row."<a href=\"/products/show.php?productMongoID=".$doc['_id']."\">";
+  $row = $row.$putil->shortenProductName($doc['productName']);
   $row = $row."</a>";
 	$row = $row."</th>\n";
 	$row = $row."</tr>\n";

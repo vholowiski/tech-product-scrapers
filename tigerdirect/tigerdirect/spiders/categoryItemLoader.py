@@ -45,6 +45,9 @@ class CategoryItemLoader(ItemLoader):
 	tdCategoryID_in = MapCompose(catIDfromURL)
 	tdCategoryID_out = TakeFirst()
 
+	tdCategoryParent_in = Identity()
+	tdCategoryParent_out = Identity()
+
 	tdCategoryLevel_in = MapCompose(catLevelfromURL)
 	tdCategoryLevel_out = TakeFirst()
 

@@ -1,10 +1,10 @@
 <?php
 
-class mongoCategories {
-	const MONGO_TABLE_TD_CATEGORY = "td_category";
+class mongoProducts {
+	const MONGO_TABLE_TD_PRODUCT = "td_product";
 
 	const MONGO_ITEM_TYPE_FIELD = "itemType";
-	const MONGO_CATEGORY_FIELD = "category";
+	const MONGO_PRODUCT_TYPE_VALUE = "product";
 	#define("MONGO_ITEM_TYPE_FIELD", "itemType");
 	#define("MONGO_CATEGORY_FIELD", 'category');
 
@@ -39,16 +39,25 @@ class mongoCategories {
 	}
 
 	function __destruct() {
-       //echo "Destroying mongoCategories\n";
+       
    }
 
-	public function getCategoryByMongoID($mongoID) {
-		/*Gets a single category, by it's mongoID
+   public function getProductsByCategoryID($tdCatID) {
+   	$tdCatID= strval($tdCatID);
+   	$mongoDBConn = $this->getMongoDB();
+	$mongoCat = $mongoDBConn->td_product;
+	$result = $mongoCat->find( array('tdCategoryID'=>$tdCatID) );
+	//var_dump($result->count());
+	return $result;
+   }
+
+/*	public function getCategoryByMongoID($mongoID) {
+		Gets a single category, by it's mongoID
 		Expects a data type MongoID
-		Returns an associative array which is the category object*/
+		Returns an associative array which is the category object
 
 		$mongoDBConn = $this->getMongoDB();
-		$mongoCat = $mongoDBConn->MONGO_TABLE_TD_CATEGORY;
+		$mongoCat = $mongoDBConn->MONGO_TABLE_td_product;
 		#$mongoID = new MongoID($mongoID);
 		$document = $mongoCat->findOne(array('_id' => $mongoID));
 
@@ -58,21 +67,21 @@ class mongoCategories {
 
 	public function getOneCategoryByID($tdCatID) {
 		$mongoDBConn = $this->getMongoDB();
-		$mongoCat = $mongoDBConn->td_category;
+		$mongoCat = $mongoDBConn->td_product;
 		$result = $mongoCat->findOne(array('tdCategoryID'=>$tdCatID));
 		return $result;
 	}
 
 	public function getAllParentCategories() {
 		$mongoDBConn = $this->getMongoDB();
-		$mongoCat = $mongoDBConn->td_category;
+		$mongoCat = $mongoDBConn->td_product;
 		$result = $mongoCat->find(array('tdCategoryLevel'=>1));
 		return $result;		
 	}
 
 	public function getChildCategories($parentID) {
 		$mongoDBConn = $this->getMongoDB();
-		$mongoCat = $mongoDBConn->td_category;
+		$mongoCat = $mongoDBConn->td_product;
 		$result = $mongoCat->find(array('tdCategoryParent'=>$parentID));
 		//var_dump($parentID);
 		//var_dump($result->count());
@@ -81,7 +90,7 @@ class mongoCategories {
 
 	public function getCategories($query = false) {
 		$mongoDBConn = $this->getMongoDB();
-		$mongoCat = $mongoDBConn->td_category;
+		$mongoCat = $mongoDBConn->td_product;
 
 		//$mongoCat = $this->getMongoDB();
 		if (!$query) {
@@ -96,7 +105,7 @@ class mongoCategories {
 		$query = array();
 
 		return $query;
-	}
+	}*/
 
 }
 
