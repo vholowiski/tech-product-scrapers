@@ -65,6 +65,7 @@ require_once(__DIR__."/../../api/shared/products/productUtils.class.php");
           $catID = (int) $_REQUEST['tdCatID'];
           //var_dump($catID);
           $productCursor = $productsOBJ->getProductsByCategoryID($catID);
+          #var_dump($productCursor->count());
           #var_dump($parentCat);
         } 
 
@@ -80,8 +81,9 @@ echo("              <th>".$parentCat['categoryName']."</th>\n");
 echo("              <th></th>\n");    
   }
 ?>
-
-            <tr>
+            <th>Price</th>
+            </tr>
+            
           </thead>
           <tbody>
 <?php
@@ -96,7 +98,8 @@ echo("              <th></th>\n");
 	$row = $row."<a href=\"/products/show.php?productMongoID=".$doc['_id']."\">";
   $row = $row.$putil->shortenProductName($doc['productName']);
   $row = $row."</a>";
-	$row = $row."</th>\n";
+	$row = $row."</th>";
+  $row = $row."<th>priceHere</th>\n";
 	$row = $row."</tr>\n";
 	echo("$row");
 	

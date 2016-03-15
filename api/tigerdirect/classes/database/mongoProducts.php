@@ -46,9 +46,29 @@ class mongoProducts {
    	$tdCatID= strval($tdCatID);
    	$mongoDBConn = $this->getMongoDB();
 	$mongoCat = $mongoDBConn->td_product;
-	$result = $mongoCat->find( array('tdCategoryID'=>$tdCatID) );
-	//var_dump($result->count());
+	
+	#fuck. dunno if im getting a string or an int, and if i need to search a string or int!
+	#lets try searching as an int first!
+	$intTdCatID = (int) $tdCatID;
+	#var_dump($intTdCatID);
+	$result = $mongoCat->find( array('tdCategoryID'=>$intTdCatID) );
+	#var_dump($result->count());
+	if ($result->count() == 0) {
+		$strTDCatID = (string) $tdCatID;
+		#var_dump($strTDCatID);
+		$result = $mongoCat->find( array('tdCategoryID'=>$strTDCatID) );
+		#var_dump($result->count());
+	}
 	return $result;
+   }
+
+   public function getProductPrice($tditemID) {
+   	echo("UNTESTED");
+   	$mongoDBConn = $this->getMongoDB();
+   	$mongoPrice = $mongoDBConn->td_price;
+   	$newestPrice = $mongoPrice->find()->sort(array('crawlTimestamp'=>-1))->limit(1);
+   	var_dump($newestPrice);
+   	return $newestPrice;
    }
 
 /*	public function getCategoryByMongoID($mongoID) {
